@@ -1,0 +1,336 @@
+/* ============================================================================
+   DESIGN TOKENS — the single source of colour for this app.
+   ============================================================================
+
+   RULE: no component may contain a raw colour literal. Add the colour here as
+   a primitive, expose it through a semantic token, then use the semantic token.
+   `npm run lint:tokens` fails the build if a hex literal appears in src/.
+
+   Three layers, in order:
+
+     1. PRIMITIVES   raw palette values. Named for what they ARE (navy-800).
+                     Never referenced directly by a component.
+     2. SEMANTIC     named for what they DO (--panel-surface). This is the only
+                     layer components are allowed to touch. Re-pointed per theme.
+     3. FORM THEME   the `--wf-*` tokens. These are the end user's choices,
+                     written at runtime from builder state onto the form root —
+                     which is why the form preview needs no per-property JS.
+
+   Sources: Figma "Main Screen" (876:4395) library variables, and the reference
+   builder HTML (new-config.html).
+   ========================================================================= */
+
+:root {
+  /* ── 1. PRIMITIVES ─────────────────────────────────────────────────── */
+
+  /* Neutrals — app chrome (reference HTML) */
+  --color-white: #ffffff;
+  --color-slate-25: #f8faff;
+  --color-slate-50: #f7f8fb;
+  --color-slate-100: #f0f2f7;
+  --color-slate-200: #edf0f4;
+  --color-slate-300: #e3e6ee;
+  --color-slate-400: #cdd1de;
+  --color-slate-500: #9ba3bf;
+  --color-slate-600: #5a6180;
+  --color-slate-800: #313949;
+  --color-slate-900: #1a1d2e;
+  --color-ink: #202123;
+
+  /* Navy — left rail & field palette (Figma side sheet) */
+  --color-navy-900: #10203b;
+  --color-navy-850: #1d2d46;
+  --color-navy-800: #1d3050;
+  --color-navy-700: #253a5c;
+  --color-navy-600: #3d5073;
+  --color-navy-400: #7c8bae;
+  --color-navy-300: #8098c0;
+  --color-navy-100: #d3d4d7;
+
+  /* Dark-theme neutrals (reference HTML) */
+  --color-night-900: #0f1117;
+  --color-night-800: #1a1d2e;
+  --color-night-700: #222639;
+  --color-night-600: #2c3050;
+  --color-night-500: #3a3f60;
+  --color-night-200: #9ba3c8;
+  --color-night-100: #e8eaf6;
+
+  /* Brand / accent */
+  --color-indigo-700: #2f4ac8;
+  --color-indigo-600: #3b5bdb;
+  --color-indigo-500: #5464f2;
+  --color-indigo-400: #5f7cfc;
+  --color-indigo-300: #a3acff;
+  --color-indigo-100: #ebedff;
+  --color-indigo-50: #eef2ff;
+  --color-indigo-bright: #6b8aff;
+  --color-violet-500: #8c71fb;
+  --color-violet-50: #f2efff;
+
+  /* Status */
+  --color-green-600: #2f9e44;
+  --color-green-50: #ebfbee;
+  --color-red-600: #e03131;
+  --color-red-400: #ff8787;
+  --color-red-50: #fff5f5;
+  --color-amber-600: #e67700;
+  --color-blue-link: #338cf0;
+
+  /* Icon hues (Figma icon variables) */
+  --color-icon-field: #4e9cc1;
+  --color-icon-grey: #616e88;
+  --color-icon-violet: #8c71fb;
+  --color-icon-violet-bg: #f2efff;
+  --color-icon-cyan: #24cbb7;
+  --color-icon-cyan-bg: #e6faf6;
+  --color-icon-pink: #f564bb;
+  --color-icon-pink-bg: #fff0f9;
+
+  /* ── Figma CRM library (node 876:4395) ── */
+  --color-crm-heading: #202123;
+  --color-crm-base: #313949;
+  --color-crm-label: #616e88;
+  --color-crm-link: #338cf0;
+  --color-crm-bg3: #f8faff;
+  --color-crm-border-2: #d6d6e3;
+  --color-crm-border-3: #dcdbee;
+  --color-crm-border-4: #edf0f4;
+  --color-crm-input-outline: #c0c6cc;
+  --color-crm-input-focus: #5464f2;
+  --color-crm-select-bg: rgba(84, 100, 242, 0.05);
+  --color-crm-swatch-ring: #cbcbcb;
+  --color-crm-tag-bg: #f3f5ff;
+  --color-crm-tag-border: #d2d7ff;
+  --color-crm-tab-active-bg: #ebedff;
+  --color-crm-tab-active-border: #a3acff;
+  --color-crm-tab-border: #dcdbee;
+  /* Buttons */
+  --color-crm-btn-default-top: #fcfcff;
+  --color-crm-btn-default-bottom: #ebeaf5;
+  --color-crm-btn-default-border: #d5d8e9;
+  --color-crm-btn-default-shadow: #d5d8e9;
+  --color-crm-btn-outline-border: #5464f2;
+  --color-crm-btn-outline-bg: #f0f1ff;
+  --color-crm-btn-primary-top: #5f7cfc;
+  --color-crm-btn-primary-bottom: #3954cc;
+  --color-crm-btn-primary-shadow: #2b42a9;
+
+  /* Alpha overlays — no theme swap, they sit on top of whatever is beneath */
+  --color-shadow-soft: rgba(0, 0, 0, 0.08);
+  --color-shadow-ambient: rgba(0, 0, 0, 0.04);
+  --color-shadow-strong: rgba(0, 0, 0, 0.1);
+  --color-shadow-dark-soft: rgba(0, 0, 0, 0.3);
+  --color-shadow-dark-ambient: rgba(0, 0, 0, 0.2);
+  --color-shadow-dark-strong: rgba(0, 0, 0, 0.4);
+  --color-shadow-thumb: rgba(0, 0, 0, 0.2);
+  --color-ring-accent: rgba(59, 91, 219, 0.12);
+  --color-ring-accent-soft: rgba(59, 91, 219, 0.08);
+  --color-white-a20: rgba(255, 255, 255, 0.2);
+  --color-white-a40: rgba(255, 255, 255, 0.4);
+  --color-hairline: rgba(0, 0, 0, 0.12);
+
+  /* ── 2. SEMANTIC — light theme ─────────────────────────────────────── */
+
+  /* App surfaces */
+  --app-bg: var(--color-slate-100);
+  --surface: var(--color-white);
+  --surface-sunken: var(--color-slate-50);
+  --border: var(--color-slate-300);
+  --border-strong: var(--color-slate-400);
+
+  /* Text */
+  --text: var(--color-slate-900);
+  --text-muted: var(--color-slate-600);
+  --text-subtle: var(--color-slate-500);
+  --text-on-accent: var(--color-white);
+
+  /* Accent */
+  --accent: var(--color-indigo-600);
+  --accent-hover: var(--color-indigo-700);
+  --accent-subtle: var(--color-indigo-50);
+  --focus-ring: var(--color-ring-accent);
+  --focus-ring-soft: var(--color-ring-accent-soft);
+
+  /* Status */
+  --danger: var(--color-red-600);
+  --danger-subtle: var(--color-red-50);
+  --success: var(--color-green-600);
+  --success-subtle: var(--color-green-50);
+  --warning: var(--color-amber-600);
+
+  /* Left rail + field palette (dark in both themes — it is a fixed surface) */
+  --rail-bg: var(--color-navy-900);
+  --rail-tab-bg: var(--color-navy-800);
+  --rail-tab-active-bg: var(--color-navy-900);
+  --rail-text: var(--color-white);
+  --rail-text-muted: var(--color-navy-300);
+  --rail-icon: var(--color-icon-grey);
+  --rail-icon-active: var(--color-violet-500);
+  --palette-bg: var(--color-navy-900);
+  --palette-item-bg: var(--color-navy-850);
+  --palette-item-hover-bg: var(--color-navy-700);
+  --palette-item-text: var(--color-white);
+  --palette-border: var(--color-navy-600);
+  --palette-placeholder: var(--color-navy-400);
+  --palette-icon: var(--color-icon-field);
+  --palette-label: var(--color-navy-300);
+  --palette-input-text: var(--color-navy-100);
+
+  /* Drag & drop affordances */
+  --drop-indicator: var(--accent);
+  --drag-ghost-bg: var(--color-indigo-50);
+  --drag-ghost-border: var(--color-indigo-300);
+
+  /* Top bar (Figma header 876:4553) */
+  --topbar-title: var(--color-crm-heading);
+  --topbar-border: var(--color-crm-border-3);
+  --tag-bg: var(--color-crm-tag-bg);
+  --tag-border: var(--color-crm-tag-border);
+  --tag-text: var(--color-crm-base);
+  --btn-default-top: var(--color-crm-btn-default-top);
+  --btn-default-bottom: var(--color-crm-btn-default-bottom);
+  --btn-default-border: var(--color-crm-btn-default-border);
+  --btn-default-shadow: var(--color-crm-btn-default-shadow);
+  --btn-default-text: var(--color-crm-base);
+  --btn-outline-border: var(--color-crm-btn-outline-border);
+  --btn-outline-bg: var(--color-crm-btn-outline-bg);
+  --btn-outline-text: var(--color-crm-btn-outline-border);
+  --btn-primary-top: var(--color-crm-btn-primary-top);
+  --btn-primary-bottom: var(--color-crm-btn-primary-bottom);
+  --btn-primary-shadow: var(--color-crm-btn-primary-shadow);
+  --btn-primary-text: var(--color-white);
+
+  /* Properties panel (Figma 876:4513) */
+  --panel-head-bg: var(--color-crm-bg3);
+  --panel-head-border: var(--color-crm-border-4);
+  --panel-heading: var(--color-crm-heading);
+  --panel-section-border: var(--color-crm-border-3);
+  --panel-label: var(--color-crm-label);
+  --panel-value: var(--color-crm-base);
+  --panel-tab-active: var(--color-crm-heading);
+  --panel-tab-idle: var(--color-crm-base);
+  --panel-tab-underline: var(--color-crm-link);
+  --control-bg: var(--color-white);
+  --control-border: var(--color-crm-input-outline);
+  --control-selected-border: var(--color-crm-input-focus);
+  --control-selected-bg: var(--color-crm-select-bg);
+  --swatch-pill-border: var(--color-crm-border-2);
+  --swatch-ring: var(--color-crm-swatch-ring);
+  --pill-tab-border: var(--color-crm-tab-border);
+  --pill-tab-active-bg: var(--color-crm-tab-active-bg);
+  --pill-tab-active-border: var(--color-crm-tab-active-border);
+  --section-icon-violet: var(--color-icon-violet);
+  --section-icon-violet-bg: var(--color-icon-violet-bg);
+  --section-icon-cyan: var(--color-icon-cyan);
+  --section-icon-cyan-bg: var(--color-icon-cyan-bg);
+  --section-icon-pink: var(--color-icon-pink);
+  --section-icon-pink-bg: var(--color-icon-pink-bg);
+
+  /* Shadows */
+  --shadow: 0 1px 3px var(--color-shadow-soft), 0 4px 16px var(--color-shadow-ambient);
+  --shadow-md: 0 4px 24px var(--color-shadow-strong);
+  --shadow-thumb: 0 1px 3px var(--color-shadow-thumb);
+
+  /* ── Non-colour design tokens ──────────────────────────────────────── */
+  --topbar-h: 48px;
+  --rail-w: 68px;
+  --palette-w: 252px;
+  --panel-w: 360px;
+  --radius: 8px;
+  --radius-sm: 5px;
+  --radius-xs: 4px;
+  --font-sans: 'Zoho Puvi', 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+}
+
+/* ── SEMANTIC — dark theme ───────────────────────────────────────────── */
+/* Only semantic tokens are re-pointed. Primitives never change. */
+
+[data-theme='dark'] {
+  --app-bg: var(--color-night-900);
+  --surface: var(--color-night-800);
+  --surface-sunken: var(--color-night-700);
+  --border: var(--color-night-600);
+  --border-strong: var(--color-night-500);
+
+  --text: var(--color-night-100);
+  --text-muted: var(--color-night-200);
+  --text-subtle: var(--color-slate-600);
+
+  --accent: var(--color-indigo-bright);
+  --accent-hover: #5570e8;
+  --accent-subtle: #1e2547;
+
+  --danger: var(--color-red-400);
+  --danger-subtle: #2e1b1b;
+
+  --shadow: 0 1px 3px var(--color-shadow-dark-soft), 0 4px 16px var(--color-shadow-dark-ambient);
+  --shadow-md: 0 4px 24px var(--color-shadow-dark-strong);
+
+  --topbar-title: var(--color-night-100);
+  --topbar-border: var(--color-night-600);
+  --tag-bg: var(--color-night-700);
+  --tag-border: var(--color-night-500);
+  --tag-text: var(--color-night-200);
+  --btn-default-top: var(--color-night-700);
+  --btn-default-bottom: var(--color-night-800);
+  --btn-default-border: var(--color-night-500);
+  --btn-default-shadow: var(--color-night-900);
+  --btn-default-text: var(--color-night-100);
+  --btn-outline-bg: var(--color-night-700);
+
+  --panel-head-bg: var(--color-night-700);
+  --panel-head-border: var(--color-night-600);
+  --panel-heading: var(--color-night-100);
+  --panel-section-border: var(--color-night-600);
+  --panel-label: var(--color-night-200);
+  --panel-value: var(--color-night-100);
+  --panel-tab-active: var(--color-night-100);
+  --panel-tab-idle: var(--color-night-200);
+  --control-bg: var(--color-night-700);
+  --control-border: var(--color-night-500);
+  --swatch-pill-border: var(--color-night-500);
+  --pill-tab-border: var(--color-night-600);
+  --pill-tab-active-bg: var(--color-night-600);
+}
+
+/* ============================================================================
+   3. FORM THEME TOKENS (`--wf-*`)
+   ============================================================================
+   Defaults only. At runtime FormCanvas binds builder state straight onto the
+   form root as an inline style object, so every styling control in the right
+   panel is a one-line binding instead of a hand-written DOM-poking function.
+   ========================================================================= */
+
+.wf-form {
+  --wf-font-family: var(--font-sans);
+  --wf-font-size: 14px;
+  --wf-width: 600px;
+  --wf-bg: var(--color-white);
+  --wf-border-color: var(--color-slate-300);
+  --wf-radius: 12px;
+
+  --wf-label-color: var(--color-slate-600);
+  --wf-title-color: var(--color-slate-900);
+  --wf-required-color: var(--color-red-600);
+
+  --wf-field-bg: var(--color-slate-50);
+  --wf-field-border: var(--color-slate-400);
+  --wf-field-radius: var(--radius-sm);
+  --wf-field-text: var(--color-slate-900);
+  --wf-field-placeholder: var(--color-slate-500);
+
+  --wf-btn-bg: var(--color-indigo-600);
+  --wf-btn-border: var(--color-indigo-600);
+  --wf-btn-text: var(--color-white);
+  --wf-btn-radius: var(--radius-sm);
+  --wf-btn-align: flex-end;
+
+  --wf-banner-h: 140px;
+  --wf-banner-from: var(--color-indigo-600);
+  --wf-banner-to: #7c3aed;
+  --wf-brand-color: var(--color-white);
+
+  --wf-error-color: var(--color-red-600);
+}
