@@ -6,7 +6,7 @@ import ButtonTab from './panels/ButtonTab.vue'
 import HeaderTab from './panels/HeaderTab.vue'
 import { useBuilderStore } from '@/composables/useBuilderStore'
 
-const { state } = useBuilderStore()
+const { state, closePanel } = useBuilderStore()
 
 const TABS = [
   { id: 'basic', label: 'Basic', component: BasicTab },
@@ -20,7 +20,13 @@ const TABS = [
   <aside class="right-panel">
     <header class="panel-head">
       <h2>Form Properties</h2>
-      <button type="button" class="panel-close" title="Close panel" aria-label="Close panel">
+      <button
+        type="button"
+        class="panel-close"
+        title="Close panel"
+        aria-label="Close panel"
+        @click="closePanel"
+      >
         <BaseIcon name="close" :size="16" />
       </button>
     </header>

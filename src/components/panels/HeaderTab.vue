@@ -36,7 +36,6 @@ const LOGO_POSITIONS = [
 <template>
   <div>
     <PanelSection
-      v-model:open="state.ui.openSections.banner"
       title="Header"
       icon="section-banner"
       tint="var(--danger-subtle)"
@@ -67,7 +66,6 @@ const LOGO_POSITIONS = [
     </PanelSection>
 
     <PanelSection
-      v-model:open="state.ui.openSections.logo"
       title="Logo"
       icon="section-logo"
       tint="var(--success-subtle)"

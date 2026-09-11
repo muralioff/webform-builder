@@ -15,11 +15,11 @@ const { toast } = useToast()
     </div>
 
     <div class="button-group">
-      <button class="btn btn--default" type="button" @click="toast('Discarded')">Cancel</button>
+      <button class="btn btn--default" type="button" @click="toast('Discarded')"><span class="btn-label">Cancel</span></button>
       <button class="btn btn--outline" type="button" @click="toast('Preview is not wired up yet')">
-        Preview
+        <span class="btn-label">Preview</span>
       </button>
-      <button class="btn btn--primary" type="button" @click="toast('Changes saved!')">Next</button>
+      <button class="btn btn--primary" type="button" @click="toast('Changes saved!')"><span class="btn-label">Next</span></button>
     </div>
   </header>
 </template>
@@ -66,14 +66,23 @@ const { toast } = useToast()
 
 .btn {
   height: 32px;
-  padding: 0 20px;
+  padding: 8px 12px 8px 14px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 3px;
   border: 1px solid transparent;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
   transition: filter 0.15s;
+}
+/* Figma insets the label 2px inside the button's 3px gap. */
+.btn-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 2px;
 }
 .btn:hover {
   filter: brightness(0.97);
@@ -82,12 +91,11 @@ const { toast } = useToast()
   filter: brightness(0.94);
 }
 
-/* Figma "Default Button": vertical gradient + 2px inset bottom shadow */
+/* Figma "Default Button" */
 .btn--default {
   border-color: var(--btn-default-border);
   background: linear-gradient(to bottom, var(--btn-default-top) 1.4%, var(--btn-default-bottom));
   color: var(--btn-default-text);
-  box-shadow: inset 0 -2px 0 0 var(--btn-default-shadow);
 }
 
 /* Figma "Outline Blue Btn" */
@@ -97,10 +105,10 @@ const { toast } = useToast()
   color: var(--btn-outline-text);
 }
 
-/* Figma "Primary Button" */
+/* Figma "Primary Button" — no border in the design; the transparent 1px keeps
+   all three buttons on the same 32px border-box height. */
 .btn--primary {
   background: linear-gradient(to top, var(--btn-primary-bottom), var(--btn-primary-top));
   color: var(--btn-primary-text);
-  box-shadow: inset 0 -2px 0 0 var(--btn-primary-shadow);
 }
 </style>

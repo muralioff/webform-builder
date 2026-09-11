@@ -86,6 +86,10 @@
   --color-icon-cyan-bg: #e6faf6;
   --color-icon-pink: #f564bb;
   --color-icon-pink-bg: #fff0f9;
+  --color-icon-lime: #aecc48;
+  --color-icon-purple: #c35bf4;
+  --color-icon-purple-bg: #faeaff;
+  --color-shape-preview: #ccd2db;
 
   /* ── Figma CRM library (node 876:4395) ── */
   --color-crm-heading: #202123;
@@ -106,15 +110,14 @@
   --color-crm-tab-active-border: #a3acff;
   --color-crm-tab-border: #dcdbee;
   /* Buttons */
-  --color-crm-btn-default-top: #fcfcff;
-  --color-crm-btn-default-bottom: #ebeaf5;
+  --color-crm-btn-default-top: #ffffff;
+  --color-crm-btn-default-bottom: #f1f0f7;
   --color-crm-btn-default-border: #d5d8e9;
-  --color-crm-btn-default-shadow: #d5d8e9;
   --color-crm-btn-outline-border: #5464f2;
   --color-crm-btn-outline-bg: #f0f1ff;
-  --color-crm-btn-primary-top: #5f7cfc;
-  --color-crm-btn-primary-bottom: #3954cc;
-  --color-crm-btn-primary-shadow: #2b42a9;
+  --color-crm-btn-outline-text: #5464f2;
+  --color-crm-btn-primary-top: #5767f6;
+  --color-crm-btn-primary-bottom: #124dc3;
 
   /* Alpha overlays — no theme swap, they sit on top of whatever is beneath */
   --color-shadow-soft: rgba(0, 0, 0, 0.08);
@@ -166,7 +169,10 @@
   --rail-text: var(--color-white);
   --rail-text-muted: var(--color-navy-300);
   --rail-icon: var(--color-icon-grey);
-  --rail-icon-active: var(--color-violet-500);
+  /* Each rail carries its own active accent (icon + left bar). */
+  --rail-accent-fields: var(--color-icon-violet);
+  --rail-accent-advanced: var(--color-icon-pink);
+  --rail-accent-elements: var(--color-icon-lime);
   --palette-bg: var(--color-navy-900);
   --palette-item-bg: var(--color-navy-850);
   --palette-item-hover-bg: var(--color-navy-700);
@@ -176,6 +182,9 @@
   --palette-icon: var(--color-icon-field);
   --palette-label: var(--color-navy-300);
   --palette-input-text: var(--color-navy-100);
+  --sub-tab-underline: var(--color-indigo-500);
+  --sub-tab-count-bg: var(--color-navy-600);
+  --sub-tab-count-text: var(--color-white);
 
   /* Drag & drop affordances */
   --drop-indicator: var(--accent);
@@ -191,14 +200,12 @@
   --btn-default-top: var(--color-crm-btn-default-top);
   --btn-default-bottom: var(--color-crm-btn-default-bottom);
   --btn-default-border: var(--color-crm-btn-default-border);
-  --btn-default-shadow: var(--color-crm-btn-default-shadow);
   --btn-default-text: var(--color-crm-base);
   --btn-outline-border: var(--color-crm-btn-outline-border);
   --btn-outline-bg: var(--color-crm-btn-outline-bg);
-  --btn-outline-text: var(--color-crm-btn-outline-border);
+  --btn-outline-text: var(--color-crm-btn-outline-text);
   --btn-primary-top: var(--color-crm-btn-primary-top);
   --btn-primary-bottom: var(--color-crm-btn-primary-bottom);
-  --btn-primary-shadow: var(--color-crm-btn-primary-shadow);
   --btn-primary-text: var(--color-white);
 
   /* Properties panel (Figma 876:4513) */
@@ -226,6 +233,9 @@
   --section-icon-cyan-bg: var(--color-icon-cyan-bg);
   --section-icon-pink: var(--color-icon-pink);
   --section-icon-pink-bg: var(--color-icon-pink-bg);
+  --section-icon-purple: var(--color-icon-purple);
+  --section-icon-purple-bg: var(--color-icon-purple-bg);
+  --shape-preview-border: var(--color-shape-preview);
 
   /* Shadows */
   --shadow: 0 1px 3px var(--color-shadow-soft), 0 4px 16px var(--color-shadow-ambient);
@@ -276,7 +286,6 @@
   --btn-default-top: var(--color-night-700);
   --btn-default-bottom: var(--color-night-800);
   --btn-default-border: var(--color-night-500);
-  --btn-default-shadow: var(--color-night-900);
   --btn-default-text: var(--color-night-100);
   --btn-outline-bg: var(--color-night-700);
 

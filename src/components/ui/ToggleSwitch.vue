@@ -24,13 +24,13 @@ const model = defineModel({ type: Boolean })
   cursor: pointer;
 }
 .toggle-label {
-  font-size: 12px;
-  color: var(--text);
+  font-size: 14px;
+  color: var(--panel-label);
 }
 .toggle {
   position: relative;
-  width: 34px;
-  height: 19px;
+  width: 30px;
+  height: 18px;
   flex-shrink: 0;
   display: inline-block;
 }
@@ -58,15 +58,15 @@ const model = defineModel({ type: Boolean })
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--color-white);
   box-shadow: var(--shadow-thumb);
   transition: transform 0.2s;
 }
 .toggle input:checked ~ .toggle-thumb {
-  transform: translateX(15px);
+  transform: translateX(12px);
 }
 .toggle input:focus-visible ~ .toggle-track {
   outline: 2px solid var(--accent);

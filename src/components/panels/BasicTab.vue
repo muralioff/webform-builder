@@ -58,7 +58,6 @@ const BG_MODES = [
   <div>
     <!-- Figma: Frame 1261154623 (880:6061) -->
     <PanelSection
-      v-model:open="state.ui.openSections.typography"
       title="Typography"
       icon="section-typography"
       tint="var(--section-icon-violet-bg)"
@@ -74,7 +73,6 @@ const BG_MODES = [
 
     <!-- Figma: Frame 1261154624 (880:6124) -->
     <PanelSection
-      v-model:open="state.ui.openSections.formStyle"
       title="Form Style"
       icon="section-form-style"
       tint="var(--section-icon-cyan-bg)"
@@ -102,7 +100,6 @@ const BG_MODES = [
 
     <!-- Figma: Frame 1261154625 (927:2776) -->
     <PanelSection
-      v-model:open="state.ui.openSections.background"
       title="Background"
       icon="section-background"
       tint="var(--section-icon-pink-bg)"
@@ -127,7 +124,6 @@ const BG_MODES = [
 
     <!-- Retained from the reference builder; not present in the Figma frame. -->
     <PanelSection
-      v-model:open="state.ui.openSections.fieldProps"
       title="Field Style"
       icon="section-field-style"
       tint="var(--success-subtle)"

@@ -1,25 +1,30 @@
 <script setup>
 import BaseIcon from './BaseIcon.vue'
 
-/** Figma: "Frame 19833" section header + body. */
+/**
+ * Figma: "Frame 19833" header + content rows.
+ *
+ * Header padding 18/14/8, content rows inset 20px (x=20, w=320 in a 360 panel).
+ * The section is plain content — the whole panel scrolls as one, so the header
+ * neither sticks nor collapses.
+ */
 defineProps({
   title: { type: String, required: true },
   icon: { type: String, default: '' },
   tint: { type: String, default: 'var(--section-icon-violet-bg)' },
   iconColor: { type: String, default: 'var(--section-icon-violet)' }
 })
-const open = defineModel('open', { type: Boolean, default: true })
 </script>
 
 <template>
   <section class="panel-section">
-    <button type="button" class="section-header" :aria-expanded="open" @click="open = !open">
+    <div class="section-header">
       <span v-if="icon" class="section-icon" :style="{ background: tint, color: iconColor }">
         <BaseIcon :name="icon" :size="16" />
       </span>
-      <span class="section-title">{{ title }}</span>
-    </button>
-    <div v-show="open" class="section-body">
+      <h3 class="section-title">{{ title }}</h3>
+    </div>
+    <div class="section-body">
       <slot />
     </div>
   </section>
@@ -34,16 +39,10 @@ const open = defineModel('open', { type: Boolean, default: true })
   border-bottom: 1px solid var(--panel-section-border);
 }
 .section-header {
-  position: sticky;
-  top: 0;
-  z-index: 2;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 14px 8px 18px;
-  border: none;
-  background: var(--surface);
-  text-align: left;
 }
 .section-icon {
   width: 22px;
@@ -66,6 +65,6 @@ const open = defineModel('open', { type: Boolean, default: true })
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding-top: 12px;
+  padding: 12px 20px 0;
 }
 </style>

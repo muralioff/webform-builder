@@ -7,7 +7,7 @@ import PropertiesPanel from './components/PropertiesPanel.vue'
 import ToastHost from './components/ui/ToastHost.vue'
 import { useBuilderStore } from './composables/useBuilderStore'
 
-const { initBuilder } = useBuilderStore()
+const { state, initBuilder } = useBuilderStore()
 onMounted(initBuilder)
 </script>
 
@@ -17,7 +17,7 @@ onMounted(initBuilder)
     <div class="layout">
       <FieldsPanel />
       <FormCanvas />
-      <PropertiesPanel />
+      <PropertiesPanel v-if="state.ui.panelOpen" />
     </div>
     <ToastHost />
   </div>

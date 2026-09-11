@@ -6,7 +6,8 @@ import { useBuilderStore } from '@/composables/useBuilderStore'
 import { createField } from '@/data/fieldTypes'
 import { useToast } from '@/composables/useToast'
 
-const { state, selectField, removeField } = useBuilderStore()
+const { state, selectField, removeField, openFormSettings, openPanel, formWidthCss } =
+  useBuilderStore()
 const { toast } = useToast()
 
 /**
@@ -20,7 +21,16 @@ const formStyle = computed(() => ({
   '--wf-banner-h': state.branding.bannerHeight
 }))
 
-const wrapStyle = computed(() => ({ maxWidth: state.theme['--wf-width'] }))
+/* An explicit width, not a max-width: the form must actually be the requested
+   size even when that is wider than the canvas (the canvas then scrolls).
+   Alignment rides on auto margins rather than the container's justify-content,
+   because a centred flex item wider than its container overflows to the left,
+   where it cannot be scrolled to. */
+const wrapStyle = computed(() => ({
+  width: formWidthCss.value,
+  marginLeft: state.formAlign === 'flex-start' ? '0' : 'auto',
+  marginRight: state.formAlign === 'flex-end' ? '0' : 'auto'
+}))
 
 /* `line` changes border structure rather than a value, so it rides on a data
    attribute instead of a token. Everything else is pure radius. */
@@ -51,9 +61,19 @@ function onRemove(field) {
   <div
     class="canvas-area"
     :data-wallpaper="state.background.wallpaper"
-    :style="{ justifyContent: state.formAlign }"
     @click.self="state.ui.selectedFieldId = null"
   >
+    <button
+      v-if="!state.ui.panelOpen"
+      type="button"
+      class="settings-btn"
+      title="Form settings"
+      aria-label="Open form settings"
+      @click.stop="openFormSettings"
+    >
+      <BaseIcon name="settings-gear" :size="16" />
+    </button>
+
     <div class="form-preview-wrap" :style="wrapStyle">
       <div
         class="wf-form form-card"
@@ -146,7 +166,7 @@ function onRemove(field) {
               class="submit-btn"
               :class="{ 'is-full': state.button.fullWidth }"
               type="button"
-              @click.stop="state.ui.activeTab = 'button'"
+              @click.stop="openPanel('button')"
             >
               {{ state.button.label || 'Submit' }}
             </button>
@@ -159,12 +179,13 @@ function onRemove(field) {
 
 <style scoped>
 .canvas-area {
+  position: relative;
   flex: 1;
   min-width: 0;
+  /* Block flow, not flex: an over-wide centred flex item is clipped on the left
+     and unreachable by scrolling. Auto margins on the child centre it instead. */
+  display: block;
   overflow: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
   padding: 40px 32px;
   background-color: var(--app-bg);
 }
@@ -182,7 +203,32 @@ function onRemove(field) {
 }
 
 .form-preview-wrap {
-  width: 100%;
+  /* width + margins come from wrapStyle */
+  max-width: none;
+}
+
+/* Figma 1031:8662 — shown only while the properties panel is closed, inset 20px
+   from the top-right of the live area. */
+.settings-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 1px solid var(--control-border);
+  border-radius: 6px;
+  background: var(--control-bg);
+  color: var(--panel-value);
+  transition: color 0.15s, border-color 0.15s;
+  z-index: 2;
+}
+.settings-btn:hover {
+  color: var(--control-selected-border);
+  border-color: var(--control-selected-border);
 }
 
 .form-card {

@@ -14,9 +14,14 @@ const BASE = {
 }
 
 /**
- * Palette: a clone-only source. It never accepts drops and never reorders, so
- * Sortable never mutates the underlying array — the canvas reads the dragged
- * item's data-* attributes and builds its own field object.
+ * Palette: a clone-only source. It never accepts drops and never reorders.
+ *
+ * In clone mode Sortable moves the REAL node into the target list and leaves its
+ * own copy behind — so without intervention Vue's vnode ends up pointing at a
+ * detached element while an untracked orphan sits in the list. `onEnd` undoes
+ * both halves: drop Sortable's copy, put Vue's node back where it started, and
+ * let Vue re-render from state (which is what removes the row once the field has
+ * been placed).
  */
 export function usePaletteSortable(elRef) {
   let instance = null
@@ -26,7 +31,15 @@ export function usePaletteSortable(elRef) {
     instance = Sortable.create(elRef.value, {
       ...BASE,
       group: { name: DND_GROUP, pull: 'clone', put: false },
-      sort: false
+      sort: false,
+
+      onEnd(evt) {
+        const { from, item, clone, oldIndex } = evt
+        clone?.remove()
+        if (item && item.parentNode !== from) {
+          from.insertBefore(item, from.children[oldIndex] ?? null)
+        }
+      }
     })
   })
 

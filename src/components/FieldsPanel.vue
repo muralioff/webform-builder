@@ -3,19 +3,46 @@ import { computed, ref } from 'vue'
 import BaseIcon from './ui/BaseIcon.vue'
 import { usePaletteSortable } from '@/composables/useSortable'
 import { useBuilderStore } from '@/composables/useBuilderStore'
-import { PALETTE_FIELDS, FIELD_TYPES, LAYOUT_OPTIONS, RAIL_TABS } from '@/data/fieldTypes'
+import {
+  PALETTE_FIELDS,
+  RELATED_FIELD_SETS,
+  ADVANCED_FIELDS,
+  FORM_ELEMENTS,
+  FIELD_TYPES,
+  LAYOUT_OPTIONS,
+  RAIL_TABS
+} from '@/data/fieldTypes'
 
-const { state } = useBuilderStore()
+const { state, relatedSections, relatedCount, toggleRelatedSection } = useBuilderStore()
 
-/* Always a fresh array: vuedraggable's `list` binding splices what it is given,
-   and PALETTE_FIELDS is a shared module constant that must never be mutated. */
+/* Each palette field can be placed once. Keyed on `source` (the label the field
+   was created from) rather than `label`, so renaming a field on the canvas does
+   not hand its palette row back. Derived, so removing the field restores it. */
+const usedSources = computed(() => new Set(state.fields.map((f) => f.source)))
+
+/* Always a fresh array: SortableJS splices what it is given, and PALETTE_FIELDS
+   is a shared module constant that must never be mutated. */
 const visibleFields = computed(() => {
   const q = state.ui.paletteSearch.trim().toLowerCase()
-  return PALETTE_FIELDS.filter((f) => !q || f.label.toLowerCase().includes(q))
+  return PALETTE_FIELDS.filter(
+    (f) => !usedSources.value.has(f.label) && (!q || f.label.toLowerCase().includes(q))
+  )
 })
+
+const allFieldsUsed = computed(
+  () => !state.ui.paletteSearch.trim() && !visibleFields.value.length
+)
 
 const paletteEl = ref(null)
 usePaletteSortable(paletteEl)
+
+/* Non-draggable rows reuse the palette icon map. */
+const iconFor = (type) => FIELD_TYPES[type]?.icon ?? 'field-single-line'
+const isCollapsed = (id) => state.ui.collapsedRelated.includes(id)
+
+const heading = computed(
+  () => RAIL_TABS.find((t) => t.id === state.ui.activeRail)?.label ?? 'Fields'
+)
 </script>
 
 <template>
@@ -29,6 +56,7 @@ usePaletteSortable(paletteEl)
         class="rail-tab"
         :class="{ active: state.ui.activeRail === tab.id }"
         :title="tab.label"
+        :style="{ '--rail-accent': tab.accent }"
         @click="state.ui.activeRail = tab.id"
       >
         <BaseIcon :name="tab.icon" :size="16" />
@@ -38,8 +66,38 @@ usePaletteSortable(paletteEl)
 
     <!-- Palette -->
     <div class="palette">
-      <h2 class="palette-heading">Fields</h2>
+      <h2 class="palette-heading">{{ heading }}</h2>
 
+      <!-- ── Fields (draggable) ──────────────────────────────────────────
+           Kept in the DOM with v-show rather than v-if so the Sortable instance
+           stays bound when you switch rails and come back. -->
+      <div v-show="state.ui.activeRail === 'fields'" class="palette-pane">
+        <!-- Figma "Primary Tab" 1468:32426 — module name vs Related. -->
+        <div class="sub-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            class="sub-tab"
+            :class="{ active: state.ui.fieldsSubTab === 'primary' }"
+            :aria-selected="state.ui.fieldsSubTab === 'primary'"
+            @click="state.ui.fieldsSubTab = 'primary'"
+          >
+            {{ state.meta.module }}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="sub-tab"
+            :class="{ active: state.ui.fieldsSubTab === 'related' }"
+            :aria-selected="state.ui.fieldsSubTab === 'related'"
+            @click="state.ui.fieldsSubTab = 'related'"
+          >
+            Related
+            <span v-if="relatedCount" class="sub-tab-count">{{ relatedCount }}</span>
+          </button>
+        </div>
+
+      <div v-show="state.ui.fieldsSubTab === 'primary'">
       <p class="palette-group-label">Layout</p>
       <div class="layout-select">
         <select v-model="state.layout" aria-label="Layout">
@@ -50,7 +108,7 @@ usePaletteSortable(paletteEl)
         <BaseIcon name="navi-down-solid" size="12" class="layout-caret" />
       </div>
 
-      <p class="palette-group-label">Fields</p>
+      <p class="palette-group-label">{{ state.meta.module }} Fields</p>
       <div class="search">
         <BaseIcon name="search" :size="15" class="search-icon" />
         <input
@@ -75,9 +133,95 @@ usePaletteSortable(paletteEl)
         </div>
       </div>
 
-      <p v-if="!visibleFields.length" class="palette-empty">
-        No fields match “{{ state.ui.paletteSearch }}”.
-      </p>
+      <p v-if="allFieldsUsed" class="palette-empty">
+          Every field has been added to the form.
+        </p>
+        <p v-else-if="!visibleFields.length" class="palette-empty">
+          No fields match “{{ state.ui.paletteSearch }}”.
+        </p>
+        </div>
+
+        <!-- ── Related — Figma 1468:32275 (empty) / 1468:31977 (populated) ──
+             Sections are derived from the lookup fields on the canvas. Rows are
+             display-only for now, like the other new lists. -->
+        <div v-show="state.ui.fieldsSubTab === 'related'">
+          <div v-if="!relatedSections.length" class="related-empty">
+            <BaseIcon name="empty-related" size="73.5" class="related-empty-art" />
+            <p class="related-empty-title">No Related Fields Found</p>
+            <p class="related-empty-hint">Add Lookup fields to view their related fields here</p>
+          </div>
+
+          <template v-else>
+            <div class="search">
+              <BaseIcon name="search" :size="15" class="search-icon" />
+              <input
+                v-model="state.ui.relatedSearch"
+                type="search"
+                placeholder="Search Fields"
+                aria-label="Search related fields"
+              />
+            </div>
+
+            <section v-for="sec in relatedSections" :key="sec.id" class="related-section">
+              <button
+                type="button"
+                class="related-head"
+                :aria-expanded="!isCollapsed(sec.id)"
+                @click="toggleRelatedSection(sec.id)"
+              >
+                <span class="related-head-label">{{ sec.title }}</span>
+                <span class="related-head-rule" />
+                <BaseIcon
+                  name="chevron-small-down"
+                  size="12"
+                  class="related-head-caret"
+                  :class="{ collapsed: isCollapsed(sec.id) }"
+                />
+              </button>
+              <div v-show="!isCollapsed(sec.id)" class="palette-list">
+                <div
+                  v-for="f in sec.fields"
+                  :key="f.label"
+                  class="palette-item palette-item--static"
+                >
+                  <BaseIcon :name="iconFor(f.type)" :size="16" class="palette-item-icon" />
+                  <span class="palette-item-label">{{ f.label }}</span>
+                </div>
+              </div>
+            </section>
+          </template>
+        </div>
+      </div>
+
+      <!-- ── Advanced Fields — Figma 1053:7491 ───────────────────────────
+           Display only: no search, no layout picker, and deliberately not
+           draggable. Behaviour comes later. -->
+      <div v-show="state.ui.activeRail === 'advanced'" class="palette-pane">
+        <div class="palette-list">
+          <div
+            v-for="item in ADVANCED_FIELDS"
+            :key="item.label"
+            class="palette-item palette-item--static"
+          >
+            <BaseIcon :name="item.icon" :size="16" class="palette-item-icon" />
+            <span class="palette-item-label">{{ item.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Form Elements — Figma 1053:7492. Display only, as above. ──── -->
+      <div v-show="state.ui.activeRail === 'form-elements'" class="palette-pane">
+        <div class="palette-list">
+          <div
+            v-for="item in FORM_ELEMENTS"
+            :key="item.label"
+            class="palette-item palette-item--static"
+          >
+            <BaseIcon :name="item.icon" :size="16" class="palette-item-icon" />
+            <span class="palette-item-label">{{ item.label }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </aside>
 </template>
@@ -115,8 +259,8 @@ usePaletteSortable(paletteEl)
 }
 .rail-tab.active {
   background: var(--rail-tab-active-bg);
-  border-left-color: var(--rail-icon-active);
-  color: var(--rail-icon-active);
+  border-left-color: var(--rail-accent);
+  color: var(--rail-accent);
 }
 .rail-tab:hover:not(.active) {
   color: var(--rail-text-muted);
@@ -136,12 +280,129 @@ usePaletteSortable(paletteEl)
 .palette {
   width: var(--palette-w);
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
+  /* Block flow, not a column flex: as a flex container it shrank fixed-height
+     children once the list overflowed (the 36px search collapsed to 18px). */
+  display: block;
   padding: 16px 16px 0;
   overflow-y: auto;
   background: var(--palette-bg);
 }
+/* ── Fields sub-tabs — Figma "Primary Tab" 1468:32426 ── */
+.sub-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 0 -16px 16px;
+  padding: 0 30px;
+  border-bottom: 1px solid var(--palette-border);
+}
+.sub-tab {
+  position: relative;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 0 0;
+  border: none;
+  background: none;
+  color: var(--rail-text);
+  font-size: 15px;
+  font-weight: 400;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.sub-tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  border-radius: 100px 100px 0 0;
+  background: var(--sub-tab-underline);
+  opacity: 0;
+}
+.sub-tab.active {
+  font-weight: 600;
+  opacity: 1;
+}
+.sub-tab.active::after {
+  opacity: 1;
+}
+.sub-tab:hover:not(.active) {
+  opacity: 0.8;
+}
+.sub-tab-count {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  background: var(--sub-tab-count-bg);
+  color: var(--sub-tab-count-text);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* ── Related sections — Figma 1468:31977 ── */
+.related-section {
+  margin-bottom: 16px;
+}
+.related-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  border: none;
+  background: none;
+}
+.related-head-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--palette-label);
+  white-space: nowrap;
+}
+.related-head-rule {
+  flex: 1;
+  min-width: 0;
+  height: 6px;
+}
+.related-head-caret {
+  color: var(--palette-label);
+  transition: transform 0.2s;
+}
+.related-head-caret.collapsed {
+  transform: rotate(-90deg);
+}
+.related-section .palette-list {
+  padding-top: 10px;
+  padding-bottom: 0;
+}
+
+/* ── Related empty state — Figma 1468:32309 ── */
+.related-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 120px 15px 0;
+  text-align: center;
+}
+.related-empty-art {
+  width: 73.5px;
+  height: 56.36px;
+}
+.related-empty-title {
+  font-size: 14px;
+  color: var(--rail-text);
+}
+.related-empty-hint {
+  font-size: 14px;
+  color: var(--palette-placeholder);
+}
+
 .palette-heading {
   font-size: 15px;
   font-weight: 600;
@@ -240,6 +501,11 @@ usePaletteSortable(paletteEl)
 }
 .palette-item:active {
   cursor: grabbing;
+}
+/* Advanced / Form Elements rows: same chrome, no drag affordance yet. */
+.palette-item--static,
+.palette-item--static:active {
+  cursor: default;
 }
 .palette-item-icon {
   color: var(--palette-icon);

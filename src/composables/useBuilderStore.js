@@ -1,5 +1,5 @@
-import { reactive, computed, watch } from 'vue'
-import { createField } from '@/data/fieldTypes'
+import { reactive, computed, ref, watch } from 'vue'
+import { createField, RELATED_FIELD_SETS } from '@/data/fieldTypes'
 
 /**
  * The single source of truth for the builder.
@@ -90,20 +90,17 @@ const state = reactive({
   fieldShape: 'round', // sharp | round | soft | pill | line
 
   ui: {
+    /* The properties panel is closed until the settings button is pressed or a
+       field is selected; the panel's own close button puts it back. */
+    panelOpen: false,
     activeTab: 'basic',
     activeRail: 'fields',
+    fieldsSubTab: 'primary',
+    collapsedRelated: [],
     selectedFieldId: null,
     paletteSearch: '',
-    appTheme: 'light',
-    openSections: {
-      typography: true,
-      formStyle: true,
-      background: true,
-      fieldProps: true,
-      buttonStyle: true,
-      banner: true,
-      logo: true
-    }
+    relatedSearch: '',
+    appTheme: 'light'
   }
 })
 
@@ -160,20 +157,82 @@ const selectedField = computed(
   () => state.fields.find((f) => f.id === state.ui.selectedFieldId) || null
 )
 
-const formWidthError = computed(() => {
-  const raw = String(state.theme['--wf-width'] || '').trim()
-  if (!raw) return 'Cannot be Empty'
-  const px = parseInt(raw, 10)
-  if (Number.isNaN(px)) return 'Enter a width in pixels'
-  if (px < 360 || px > 1000) return 'Supported width: 360px – 1000px'
-  return ''
+/**
+ * Related sections, derived from what is actually on the canvas: one section per
+ * lookup field that has a mapping. Being derived rather than stored means adding
+ * or removing a lookup updates the Related tab (and its count) on its own.
+ */
+const relatedSections = computed(() => {
+  const seen = new Set()
+  const sections = []
+  for (const field of state.fields) {
+    if (field.type !== 'lookup') continue
+    const set = RELATED_FIELD_SETS[field.source]
+    if (!set || seen.has(set.module)) continue
+    seen.add(set.module)
+    sections.push({ id: set.module, title: `${set.module} Fields`, fields: set.fields })
+  }
+  return sections
 })
+
+const relatedCount = computed(() => relatedSections.value.length)
+
+const MIN_FORM_WIDTH = 360
+const MAX_FORM_WIDTH = 1000
+
+function parseWidth(value) {
+  const raw = String(value ?? '').trim()
+  if (!raw) return { error: 'Cannot be Empty' }
+  const px = parseInt(raw, 10)
+  if (Number.isNaN(px)) return { error: 'Enter a width in pixels' }
+  if (px < MIN_FORM_WIDTH || px > MAX_FORM_WIDTH) {
+    return { error: `Supported width: ${MIN_FORM_WIDTH}px – ${MAX_FORM_WIDTH}px` }
+  }
+  return { px }
+}
+
+const formWidthError = computed(() => parseWidth(state.theme['--wf-width']).error || '')
+
+/**
+ * The width the canvas actually renders at.
+ *
+ * Normalised to a real CSS length, so a bare "450" works as well as "450px" —
+ * `max-width: 450` is invalid CSS and would otherwise be dropped silently. While
+ * the field is empty or out of range the last good value is held, so the form
+ * does not collapse while someone is mid-typing.
+ */
+const lastValidWidth = ref('600px')
+watch(
+  () => state.theme['--wf-width'],
+  (value) => {
+    const { px } = parseWidth(value)
+    if (px) lastValidWidth.value = `${px}px`
+  },
+  { immediate: true }
+)
+const formWidthCss = computed(() => lastValidWidth.value)
 
 /* ── Actions ─────────────────────────────────────────────────────────── */
 
 function selectField(id) {
   state.ui.selectedFieldId = id
   state.ui.activeTab = 'field'
+  state.ui.panelOpen = true
+}
+
+/** Settings button — opens the form-level (Basic) properties. */
+function openFormSettings() {
+  state.ui.activeTab = 'basic'
+  state.ui.panelOpen = true
+}
+
+function openPanel(tab) {
+  if (tab) state.ui.activeTab = tab
+  state.ui.panelOpen = true
+}
+
+function closePanel() {
+  state.ui.panelOpen = false
 }
 
 function clearSelection() {
@@ -208,12 +267,14 @@ function duplicateField(id) {
   selectField(copy.id)
 }
 
-function setToken(name, value) {
-  state.theme[name] = value
+function toggleRelatedSection(id) {
+  const i = state.ui.collapsedRelated.indexOf(id)
+  if (i === -1) state.ui.collapsedRelated.push(id)
+  else state.ui.collapsedRelated.splice(i, 1)
 }
 
-function toggleSection(key) {
-  state.ui.openSections[key] = !state.ui.openSections[key]
+function setToken(name, value) {
+  state.theme[name] = value
 }
 
 function setAppTheme(theme) {
@@ -252,13 +313,19 @@ export function useBuilderStore() {
     state,
     selectedField,
     formWidthError,
+    formWidthCss,
+    relatedSections,
+    relatedCount,
+    toggleRelatedSection,
     selectField,
     clearSelection,
+    openFormSettings,
+    openPanel,
+    closePanel,
     addField,
     removeField,
     duplicateField,
     setToken,
-    toggleSection,
     setAppTheme,
     initAppTheme,
     initBuilder,

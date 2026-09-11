@@ -17,7 +17,6 @@ const { state, selectedField, removeField, duplicateField } = useBuilderStore()
 
     <PanelSection
       v-else
-      v-model:open="state.ui.openSections.fieldProps"
       :title="selectedField.label || 'Field Properties'"
       icon="field-props"
       tint="var(--color-indigo-50)"
