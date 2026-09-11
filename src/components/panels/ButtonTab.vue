@@ -25,6 +25,7 @@ const ALIGNMENTS = [
 </script>
 
 <template>
+  <div>
   <!-- Figma: "Submit Button" section 965:4993 / 1087:17824.
        Row order follows the frame: Label, Shape, Fill, Border, Text,
        Fill Full Width, then Alignment last. -->
@@ -65,4 +66,48 @@ const ALIGNMENTS = [
       <SegmentControl v-model="state.button.align" label="Alignment" :options="ALIGNMENTS" />
     </div>
   </PanelSection>
+
+  <!-- Figma: "Reset Button" section 970:6118. The header switch turns the
+       button on and reveals its properties; there is no separate alignment,
+       since Reset follows Submit. -->
+  <PanelSection
+    title="Reset Button"
+    icon="section-reset-button"
+    tint="var(--section-icon-blue-bg)"
+    icon-color="var(--section-icon-blue)"
+  >
+    <template #header-extra>
+      <ToggleSwitch v-model="state.resetButton.enabled" />
+    </template>
+
+    <template v-if="state.resetButton.enabled">
+      <div class="prop-row">
+        <InputControl v-model="state.resetButton.label" label="Reset Label" placeholder="Reset" />
+      </div>
+
+      <div class="prop-row">
+        <ShapeOptions
+          v-model="state.theme['--wf-reset-radius']"
+          label="Button Shape"
+          :options="SHAPES"
+          tile
+        />
+      </div>
+
+      <div class="prop-row">
+        <ColorControl v-model="state.theme['--wf-reset-bg']" label="Fill Color" />
+      </div>
+      <div class="prop-row">
+        <ColorControl v-model="state.theme['--wf-reset-border']" label="Border Color" />
+      </div>
+      <div class="prop-row">
+        <ColorControl v-model="state.theme['--wf-reset-text']" label="Text Color" />
+      </div>
+
+      <div class="prop-row">
+        <ToggleSwitch v-model="state.resetButton.fullWidth" label="Fill Full Width" />
+      </div>
+    </template>
+  </PanelSection>
+  </div>
 </template>

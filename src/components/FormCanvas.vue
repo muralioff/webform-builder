@@ -6,7 +6,7 @@ import { useBuilderStore } from '@/composables/useBuilderStore'
 import { createField } from '@/data/fieldTypes'
 import { useToast } from '@/composables/useToast'
 
-const { state, selectField, removeField, openFormSettings, openPanel, formWidthCss } =
+const { state, selectField, removeField, openFormSettings, openPanel, formWidthCss, buttonsStacked } =
   useBuilderStore()
 const { toast } = useToast()
 
@@ -161,10 +161,21 @@ function onRemove(field) {
             Drag a field here from the left to start building.
           </p>
 
-          <div class="form-footer-row">
+          <!-- Reset sits before Submit in the DOM so a plain row puts it on the
+               left; stacked mode reverses the column to lift Submit on top. -->
+          <div class="form-footer-row" :class="{ 'is-stacked': buttonsStacked }">
+            <button
+              v-if="state.resetButton.enabled"
+              class="reset-btn"
+              :class="{ 'is-full': buttonsStacked }"
+              type="button"
+              @click.stop="openPanel('button')"
+            >
+              {{ state.resetButton.label || 'Reset' }}
+            </button>
             <button
               class="submit-btn"
-              :class="{ 'is-full': state.button.fullWidth }"
+              :class="{ 'is-full': buttonsStacked || (!state.resetButton.enabled && state.button.fullWidth) }"
               type="button"
               @click.stop="openPanel('button')"
             >
@@ -474,8 +485,14 @@ function onRemove(field) {
 
 .form-footer-row {
   display: flex;
+  gap: 12px;
   justify-content: var(--wf-btn-align);
   margin-top: 8px;
+}
+/* Figma 970:6236 — both full width, Submit above Reset, 12px apart. */
+.form-footer-row.is-stacked {
+  flex-direction: column-reverse;
+  align-items: stretch;
 }
 .submit-btn {
   height: 38px;
@@ -489,8 +506,29 @@ function onRemove(field) {
   font-weight: 600;
   transition: filter 0.15s, transform 0.1s, border-radius 0.15s;
 }
-.submit-btn.is-full {
+.submit-btn.is-full,
+.reset-btn.is-full {
   width: 100%;
+}
+
+/* Secondary action — outline by default, its own theme tokens. */
+.reset-btn {
+  height: 38px;
+  padding: 0 28px;
+  border: 1.5px solid var(--wf-reset-border);
+  border-radius: var(--wf-reset-radius);
+  background: var(--wf-reset-bg);
+  color: var(--wf-reset-text);
+  font-family: inherit;
+  font-size: 0.93em;
+  font-weight: 600;
+  transition: filter 0.15s, transform 0.1s, border-radius 0.15s;
+}
+.reset-btn:hover {
+  filter: brightness(0.96);
+}
+.reset-btn:active {
+  transform: scale(0.97);
 }
 .submit-btn:hover {
   filter: brightness(0.93);

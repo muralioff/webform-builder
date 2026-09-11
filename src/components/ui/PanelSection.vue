@@ -23,6 +23,7 @@ defineProps({
         <BaseIcon :name="icon" :size="16" />
       </span>
       <h3 class="section-title">{{ title }}</h3>
+      <slot name="header-extra" />
     </div>
     <div class="section-body">
       <slot />
@@ -44,6 +45,9 @@ defineProps({
   gap: 10px;
   padding: 8px 14px 8px 18px;
 }
+.section-header > :deep(.toggle) {
+  flex-shrink: 0;
+}
 .section-icon {
   width: 22px;
   height: 22px;
@@ -54,7 +58,7 @@ defineProps({
   border-radius: 4px;
 }
 .section-title {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   font-size: 15px;
   font-weight: 600;

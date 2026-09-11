@@ -52,7 +52,7 @@ const model = defineModel({ type: Boolean })
   transition: background 0.2s;
 }
 .toggle input:checked + .toggle-track {
-  background: var(--accent);
+  background: var(--switch-on);
 }
 .toggle-thumb {
   position: absolute;

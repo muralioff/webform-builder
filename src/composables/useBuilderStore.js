@@ -58,6 +58,13 @@ const state = reactive({
     fullWidth: false
   },
 
+  /* Figma 970:6118 — optional secondary button rendered beside Submit. */
+  resetButton: {
+    enabled: false,
+    label: 'Reset',
+    fullWidth: false
+  },
+
   branding: {
     name: 'YourBrand',
     bannerHeight: '140px',
@@ -83,7 +90,8 @@ const state = reactive({
     '--wf-font-size': '14px',
     '--wf-width': '600px',
     '--wf-field-radius': '5px',
-    '--wf-btn-radius': '5px'
+    '--wf-btn-radius': '5px',
+    '--wf-reset-radius': '5px'
   },
 
   /* Non-token form style that changes structure rather than a value. */
@@ -114,6 +122,9 @@ const WF_COLOR_TOKENS = [
   '--wf-btn-bg',
   '--wf-btn-border',
   '--wf-btn-text',
+  '--wf-reset-bg',
+  '--wf-reset-border',
+  '--wf-reset-text',
   '--wf-brand-color',
   '--wf-error-color'
 ]
@@ -176,6 +187,14 @@ const relatedSections = computed(() => {
 })
 
 const relatedCount = computed(() => relatedSections.value.length)
+
+/**
+ * Figma 970:6236 — with Reset on, turning either "Fill Full Width" switch on
+ * makes BOTH buttons full width and stacks them, Submit above Reset.
+ */
+const buttonsStacked = computed(
+  () => state.resetButton.enabled && (state.button.fullWidth || state.resetButton.fullWidth)
+)
 
 const MIN_FORM_WIDTH = 360
 const MAX_FORM_WIDTH = 1000
@@ -316,6 +335,7 @@ export function useBuilderStore() {
     formWidthCss,
     relatedSections,
     relatedCount,
+    buttonsStacked,
     toggleRelatedSection,
     selectField,
     clearSelection,

@@ -90,6 +90,9 @@
   --color-icon-purple: #c35bf4;
   --color-icon-purple-bg: #faeaff;
   --color-shape-preview: #ccd2db;
+  --color-icon-blue: #226db4;
+  --color-icon-blue-bg: #e6f0fc;
+  --color-switch-on: #72c98a;
 
   /* ── Figma CRM library (node 876:4395) ── */
   --color-crm-heading: #202123;
@@ -236,6 +239,9 @@
   --section-icon-purple: var(--color-icon-purple);
   --section-icon-purple-bg: var(--color-icon-purple-bg);
   --shape-preview-border: var(--color-shape-preview);
+  --section-icon-blue: var(--color-icon-blue);
+  --section-icon-blue-bg: var(--color-icon-blue-bg);
+  --switch-on: var(--color-switch-on);
 
   /* Shadows */
   --shadow: 0 1px 3px var(--color-shadow-soft), 0 4px 16px var(--color-shadow-ambient);
@@ -335,6 +341,11 @@
   --wf-btn-text: var(--color-white);
   --wf-btn-radius: var(--radius-sm);
   --wf-btn-align: flex-end;
+
+  --wf-reset-bg: var(--color-white);
+  --wf-reset-border: var(--color-slate-400);
+  --wf-reset-text: var(--color-slate-900);
+  --wf-reset-radius: var(--radius-sm);
 
   --wf-banner-h: 140px;
   --wf-banner-from: var(--color-indigo-600);
