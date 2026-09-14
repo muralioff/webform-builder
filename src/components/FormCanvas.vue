@@ -44,7 +44,7 @@ useCanvasSortable(listEl, {
     const field = createField(type || 'single-line', { label })
     state.fields.splice(index, 0, field)
     selectField(field.id)
-    toast(`${field.label} added`)
+    toast.success(`${field.label} added`)
   },
   onReorder(from, to) {
     state.fields.splice(to, 0, state.fields.splice(from, 1)[0])
@@ -52,8 +52,8 @@ useCanvasSortable(listEl, {
 })
 
 function onRemove(field) {
-  if (removeField(field.id)) toast(`${field.label} removed`)
-  else toast(`${field.label} is required and can’t be removed`)
+  if (removeField(field.id)) toast.success(`${field.label} removed`)
+  else toast.warning(`${field.label} is required and can’t be removed`)
 }
 </script>
 
@@ -333,11 +333,6 @@ function onRemove(field) {
 }
 .preview-field.is-hidden {
   opacity: 0.55;
-}
-.preview-field.dnd-ghost {
-  opacity: 0.35;
-  background: var(--drag-ghost-bg);
-  border-color: var(--drop-indicator);
 }
 
 .field-grip,

@@ -43,6 +43,7 @@
   --color-navy-800: #1d3050;
   --color-navy-700: #253a5c;
   --color-navy-600: #3d5073;
+  --color-navy-500: #677182;
   --color-navy-400: #7c8bae;
   --color-navy-300: #8098c0;
   --color-navy-100: #d3d4d7;
@@ -64,6 +65,7 @@
   --color-indigo-300: #a3acff;
   --color-indigo-100: #ebedff;
   --color-indigo-50: #eef2ff;
+  --color-indigo-25: #edf0ff;
   --color-indigo-bright: #6b8aff;
   --color-violet-500: #8c71fb;
   --color-violet-50: #f2efff;
@@ -93,6 +95,25 @@
   --color-icon-blue: #226db4;
   --color-icon-blue-bg: #e6f0fc;
   --color-switch-on: #72c98a;
+
+  /* ── Message Box — CRM Styleguide 36:8990 ── */
+  --color-msg-success-bg: #f5faf5;
+  --color-msg-success-outline: #a9d3ab;
+  --color-msg-success-text: #132c14;
+  --color-msg-success-icon: #12aa67;
+  --color-msg-error-bg: #fff7fa;
+  --color-msg-error-outline: #faa9a2;
+  --color-msg-error-text: #431410;
+  --color-msg-error-icon: #ff5d5a;
+  --color-msg-warning-bg: #fff6ee;
+  --color-msg-warning-outline: #e9c072;
+  --color-msg-warning-text: #463208;
+  --color-msg-warning-icon: #f18e0a;
+  --color-msg-info-bg: #f4feff;
+  --color-msg-info-outline: #bbd7d9;
+  --color-msg-info-text: #323d3e;
+  --color-msg-info-icon: var(--color-icon-cyan);
+  --color-msg-shadow: rgba(0, 0, 0, 0.15);
 
   /* ── Figma CRM library (node 876:4395) ── */
   --color-crm-heading: #202123;
@@ -189,10 +210,12 @@
   --sub-tab-count-bg: var(--color-navy-600);
   --sub-tab-count-text: var(--color-white);
 
-  /* Drag & drop affordances */
-  --drop-indicator: var(--accent);
-  --drag-ghost-bg: var(--color-indigo-50);
+  /* Drag & drop affordances — Figma 1156:11381 */
+  --drop-indicator: var(--color-indigo-500);
+  --drop-zone-bg: var(--color-indigo-25);
   --drag-ghost-border: var(--color-indigo-300);
+  /* The row the dragged field vacated, left outlined in the palette. */
+  --palette-slot-border: var(--color-navy-500);
 
   /* Top bar (Figma header 876:4553) */
   --topbar-title: var(--color-crm-heading);
@@ -242,6 +265,25 @@
   --section-icon-blue: var(--color-icon-blue);
   --section-icon-blue-bg: var(--color-icon-blue-bg);
   --switch-on: var(--color-switch-on);
+
+  /* Message Box — one trio per variant, selected by [data-variant]. */
+  --msg-success-bg: var(--color-msg-success-bg);
+  --msg-success-outline: var(--color-msg-success-outline);
+  --msg-success-text: var(--color-msg-success-text);
+  --msg-success-icon: var(--color-msg-success-icon);
+  --msg-error-bg: var(--color-msg-error-bg);
+  --msg-error-outline: var(--color-msg-error-outline);
+  --msg-error-text: var(--color-msg-error-text);
+  --msg-error-icon: var(--color-msg-error-icon);
+  --msg-warning-bg: var(--color-msg-warning-bg);
+  --msg-warning-outline: var(--color-msg-warning-outline);
+  --msg-warning-text: var(--color-msg-warning-text);
+  --msg-warning-icon: var(--color-msg-warning-icon);
+  --msg-info-bg: var(--color-msg-info-bg);
+  --msg-info-outline: var(--color-msg-info-outline);
+  --msg-info-text: var(--color-msg-info-text);
+  --msg-info-icon: var(--color-msg-info-icon);
+  --msg-shadow: 0 2px 6px var(--color-msg-shadow);
 
   /* Shadows */
   --shadow: 0 1px 3px var(--color-shadow-soft), 0 4px 16px var(--color-shadow-ambient);

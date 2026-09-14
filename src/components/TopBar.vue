@@ -19,7 +19,7 @@ const { toast } = useToast()
       <button class="btn btn--outline" type="button" @click="toast('Preview is not wired up yet')">
         <span class="btn-label">Preview</span>
       </button>
-      <button class="btn btn--primary" type="button" @click="toast('Changes saved!')"><span class="btn-label">Next</span></button>
+      <button class="btn btn--primary" type="button" @click="toast.success('Changes saved!')"><span class="btn-label">Next</span></button>
     </div>
   </header>
 </template>

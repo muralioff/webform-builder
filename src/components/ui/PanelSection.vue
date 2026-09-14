@@ -36,6 +36,8 @@ defineProps({
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  /* Figma 1473:33314 — every section carries 10px above it, the first included. */
+  padding-top: 10px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--panel-section-border);
 }

@@ -88,3 +88,55 @@ textarea {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================================
+   DRAG AND DROP — Figma 1156:11381
+   ============================================================================
+   SortableJS moves the dragged element between the palette and the canvas, so
+   these classes end up on nodes owned by a different component than the one
+   they land in. Scoped styles cannot match across that boundary, which is why
+   they live here.
+   ========================================================================= */
+
+/* Scoped component rules land as `.palette-item[data-v-x]` — specificity (0,2,0)
+   — and are injected after this file, so a plain `.field-list .dnd-ghost` ties
+   and loses on source order. The doubled class takes these to (0,3,0) so the
+   drag state reliably overrides whatever the element looked like at rest. */
+
+/* The drop position inside the form: an empty dotted box. Children are removed
+   from layout rather than hidden, so the box keeps one height whatever is
+   being dragged. */
+.field-list .dnd-ghost.dnd-ghost {
+  min-height: 40px;
+  margin-bottom: 16px;
+  padding: 0;
+  border: 2px dashed var(--drop-indicator);
+  border-radius: 7px;
+  background: var(--drop-zone-bg);
+  opacity: 1;
+}
+
+.field-list .dnd-ghost.dnd-ghost > * {
+  display: none;
+}
+
+/* The slot the field came from. Two cases, one look: the row itself while the
+   drag starts (still in the palette), and the copy Sortable swaps in once the
+   row moves out. */
+.palette-list .dnd-ghost.dnd-ghost,
+.palette-item.palette-item--placeholder {
+  border: 1px solid var(--palette-slot-border);
+  background: var(--palette-item-bg);
+  cursor: default;
+}
+
+.palette-list .dnd-ghost.dnd-ghost > *,
+.palette-item.palette-item--placeholder > * {
+  display: none;
+}
+
+/* The element following the cursor. */
+.dnd-drag {
+  box-shadow: var(--shadow-md);
+  opacity: 1;
+}

@@ -33,6 +33,13 @@ export function usePaletteSortable(elRef) {
       group: { name: DND_GROUP, pull: 'clone', put: false },
       sort: false,
 
+      /* Sortable stands this copy in for the row being dragged. Tagging it
+         lets the palette show an empty outlined slot (Figma 1156:11437)
+         instead of a duplicate of the row that is already under the cursor. */
+      onClone(evt) {
+        evt.clone?.classList.add('palette-item--placeholder')
+      },
+
       onEnd(evt) {
         const { from, item, clone, oldIndex } = evt
         clone?.remove()

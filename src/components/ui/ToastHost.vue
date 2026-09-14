@@ -1,35 +1,36 @@
 <script setup>
+import MessageBox from './MessageBox.vue'
 import { useToast } from '@/composables/useToast'
-const { message, visible } = useToast()
+
+const { message, variant, visible, dismiss } = useToast()
 </script>
 
 <template>
-  <div class="toast" :class="{ show: visible }" role="status" aria-live="polite">
-    {{ message }}
-  </div>
+  <Transition name="toast">
+    <div v-if="visible" class="toast-host">
+      <MessageBox :variant="variant" :message="message" closable @close="dismiss" />
+    </div>
+  </Transition>
 </template>
 
 <style scoped>
-.toast {
+.toast-host {
   position: fixed;
-  bottom: 24px;
+  top: 60px;
   left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  padding: 9px 18px;
-  border-radius: 20px;
-  background: var(--text);
-  color: var(--surface);
-  font-size: 12px;
-  font-weight: 500;
-  box-shadow: var(--shadow-md);
-  opacity: 0;
-  pointer-events: none;
-  white-space: nowrap;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 48px);
   z-index: 9999;
-  transition: opacity 0.3s, transform 0.3s;
 }
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.25s, transform 0.25s;
+}
+/* Enters from above, matching its new position at the top of the screen. */
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-12px);
 }
 </style>

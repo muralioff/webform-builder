@@ -519,12 +519,6 @@ const heading = computed(
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.palette-item--ghost {
-  opacity: 0.4;
-}
-.palette-item--drag {
-  opacity: 0.9;
-}
 .palette-empty {
   font-size: 12px;
   color: var(--palette-placeholder);
