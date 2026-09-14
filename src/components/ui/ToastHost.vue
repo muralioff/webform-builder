@@ -2,13 +2,20 @@
 import MessageBox from './MessageBox.vue'
 import { useToast } from '@/composables/useToast'
 
-const { message, variant, visible, dismiss } = useToast()
+const { message, variant, visible, action, dismiss, runAction } = useToast()
 </script>
 
 <template>
   <Transition name="toast">
     <div v-if="visible" class="toast-host">
-      <MessageBox :variant="variant" :message="message" closable @close="dismiss" />
+      <MessageBox
+        :variant="variant"
+        :message="message"
+        :action-label="action?.label ?? ''"
+        closable
+        @action="runAction"
+        @close="dismiss"
+      />
     </div>
   </Transition>
 </template>

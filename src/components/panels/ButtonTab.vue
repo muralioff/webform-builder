@@ -7,7 +7,7 @@ import SegmentControl from '../ui/SegmentControl.vue'
 import ToggleSwitch from '../ui/ToggleSwitch.vue'
 import { useBuilderStore } from '@/composables/useBuilderStore'
 
-const { state } = useBuilderStore()
+const { state, buttonsFullWidth } = useBuilderStore()
 
 /* Figma 965:5021 — the tile preview radius, and the radius applied to the real
    button, are the same value. */
@@ -59,7 +59,8 @@ const ALIGNMENTS = [
     </div>
 
     <div class="prop-row">
-      <ToggleSwitch v-model="state.button.fullWidth" label="Fill Full Width" />
+      <!-- Shared with Reset: a full-width pair always expands and stacks together. -->
+      <ToggleSwitch v-model="buttonsFullWidth" label="Fill Full Width" />
     </div>
 
     <div class="prop-row">
@@ -105,7 +106,7 @@ const ALIGNMENTS = [
       </div>
 
       <div class="prop-row">
-        <ToggleSwitch v-model="state.resetButton.fullWidth" label="Fill Full Width" />
+        <ToggleSwitch v-model="buttonsFullWidth" label="Fill Full Width" />
       </div>
     </template>
   </PanelSection>

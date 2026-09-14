@@ -20,10 +20,13 @@ const props = defineProps({
   },
   message: { type: String, default: '' },
   /* Figma exposes the close icon as an optional property, off by default. */
-  closable: { type: Boolean, default: false }
+  closable: { type: Boolean, default: false },
+  /* Figma 2055:44611 — an optional inline action after the message ("Undo").
+     Empty means no action, which is the plain Message Box. */
+  actionLabel: { type: String, default: '' }
 })
 
-defineEmits(['close'])
+defineEmits(['close', 'action'])
 
 const ICONS = {
   success: 'alert-success',
@@ -39,7 +42,15 @@ const icon = computed(() => ICONS[props.variant] ?? ICONS.success)
   <div class="message-box" :data-variant="variant" role="status" aria-live="polite">
     <span class="message-box__content">
       <BaseIcon :name="icon" :size="22" class="message-box__icon" />
-      <span class="message-box__text">{{ message }}</span>
+      <span class="message-box__text">
+        {{ message }}
+        <button
+          v-if="actionLabel"
+          type="button"
+          class="message-box__action"
+          @click="$emit('action')"
+        >{{ actionLabel }}</button>
+      </span>
     </span>
 
     <button
@@ -112,6 +123,23 @@ const icon = computed(() => ICONS[props.variant] ?? ICONS.success)
   font-size: 14px;
   font-weight: 500;
   line-height: normal;
+}
+
+/* Figma puts the action inside the same text run as the message, pushed across by
+   literal spaces. Our message is dynamic, so the offset has to be a margin — the
+   action stays inline with the text rather than becoming a third flex child,
+   which would inherit the 10px icon gap. */
+.message-box__action {
+  margin-left: 22px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--msg-link);
+  cursor: pointer;
+}
+.message-box__action:hover {
+  text-decoration: underline;
 }
 
 .message-box__close {

@@ -5,7 +5,6 @@ import SizeChips from '../ui/SizeChips.vue'
 import SegmentControl from '../ui/SegmentControl.vue'
 import ColorControl from '../ui/ColorControl.vue'
 import InputControl from '../ui/InputControl.vue'
-import ShapeOptions from '../ui/ShapeOptions.vue'
 import PillTabs from '../ui/PillTabs.vue'
 import { useBuilderStore } from '@/composables/useBuilderStore'
 
@@ -31,14 +30,6 @@ const ALIGNMENTS = [
   { value: 'flex-start', label: 'Left' },
   { value: 'center', label: 'Center' },
   { value: 'flex-end', label: 'Right' }
-]
-
-const SHAPES = [
-  { value: 'sharp', rx: '0px', label: 'Sharp' },
-  { value: 'round', rx: '2px', label: 'Round' },
-  { value: 'soft', rx: '3px', label: 'Soft' },
-  { value: 'pill', rx: '3.5px', label: 'Pill' },
-  { value: 'line', icon: 'shape-line', label: 'Line' }
 ]
 
 const BACKDROPS = [
@@ -119,27 +110,6 @@ const BG_MODES = [
           :options="BACKDROPS"
         />
         <p class="prop-help">Builder preview only — not part of the published form.</p>
-      </div>
-    </PanelSection>
-
-    <!-- Retained from the reference builder; not present in the Figma frame. -->
-    <PanelSection
-      title="Field Style"
-      icon="section-field-style"
-      tint="var(--success-subtle)"
-      icon-color="var(--success)"
-    >
-      <div class="prop-row">
-        <ShapeOptions v-model="state.fieldShape" label="Field Shape" :options="SHAPES" />
-      </div>
-      <div class="prop-row">
-        <ColorControl v-model="state.theme['--wf-field-bg']" label="Field Background" />
-      </div>
-      <div class="prop-row">
-        <ColorControl v-model="state.theme['--wf-field-border']" label="Field Border" />
-      </div>
-      <div class="prop-row">
-        <ColorControl v-model="state.theme['--wf-error-color']" label="Error Message Color" />
       </div>
     </PanelSection>
   </div>

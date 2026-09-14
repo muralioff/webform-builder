@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import BaseIcon from './ui/BaseIcon.vue'
+import SearchInput from './ui/SearchInput.vue'
 import { usePaletteSortable } from '@/composables/useSortable'
 import { useBuilderStore } from '@/composables/useBuilderStore'
 import {
@@ -109,15 +110,12 @@ const heading = computed(
       </div>
 
       <p class="palette-group-label">{{ state.meta.module }} Fields</p>
-      <div class="search">
-        <BaseIcon name="search" :size="15" class="search-icon" />
-        <input
-          v-model="state.ui.paletteSearch"
-          type="search"
-          placeholder="Search Fields"
-          aria-label="Search fields"
-        />
-      </div>
+      <SearchInput
+        v-model="state.ui.paletteSearch"
+        placeholder="Search Fields"
+        aria-label="Search fields"
+        class="palette-search"
+      />
 
       <div ref="paletteEl" class="palette-list">
         <div
@@ -152,15 +150,12 @@ const heading = computed(
           </div>
 
           <template v-else>
-            <div class="search">
-              <BaseIcon name="search" :size="15" class="search-icon" />
-              <input
-                v-model="state.ui.relatedSearch"
-                type="search"
-                placeholder="Search Fields"
-                aria-label="Search related fields"
-              />
-            </div>
+            <SearchInput
+              v-model="state.ui.relatedSearch"
+              placeholder="Search Fields"
+              aria-label="Search related fields"
+              class="palette-search"
+            />
 
             <section v-for="sec in relatedSections" :key="sec.id" class="related-section">
               <button
@@ -448,34 +443,10 @@ const heading = computed(
   color: var(--palette-border);
 }
 
-.search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 12px;
+/* Everything the search looks like lives in SearchInput.vue (the CRM
+   builder-input spec); the panel only owns where it sits. */
+.palette-search {
   margin-bottom: 10px;
-  border: 1px solid var(--palette-border);
-  border-radius: 5px;
-}
-.search:focus-within {
-  border-color: var(--rail-icon-active);
-}
-.search-icon {
-  color: var(--palette-placeholder);
-}
-.search input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  background: none;
-  outline: none;
-  color: var(--palette-item-text);
-  font-size: 14px;
-}
-.search input::placeholder {
-  color: var(--palette-placeholder);
 }
 
 .palette-list {

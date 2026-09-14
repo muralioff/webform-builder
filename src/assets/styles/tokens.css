@@ -142,6 +142,20 @@
   --color-crm-btn-outline-text: #5464f2;
   --color-crm-btn-primary-top: #5767f6;
   --color-crm-btn-primary-bottom: #124dc3;
+  /* "crmBuilderInput" — the transparent search that sits on the navy builder
+     panel (lyte-input.less 484-543). Its rest border and panel colour are
+     already here as navy-600 (#3d5073) and navy-900 (#10203b). */
+  --color-crm-search-border-hover: #6a7fa3;
+  --color-crm-search-placeholder: #a2a9b7;
+  --color-crm-clear-bg: #e9eef4;
+  --color-crm-clear-bg-hover: #d9e1e9;
+  /* CRM ships --formBorderError and the alert icon as two tokens that happen to
+     share a value; alias rather than repeat the literal. */
+  --color-crm-form-error: var(--color-msg-error-icon);
+  /* Checkbox / disabled input (Figma 208:1319 — Field Properties sheet) */
+  --color-crm-input-disabled-bg: #f4f5f6;
+  --color-crm-input-disabled-outline: #dbe0e5;
+  --color-crm-sheet-shadow: rgba(208, 221, 234, 0.87);
 
   /* Alpha overlays — no theme swap, they sit on top of whatever is beneath */
   --color-shadow-soft: rgba(0, 0, 0, 0.08);
@@ -187,6 +201,29 @@
   --warning: var(--color-amber-600);
 
   /* Left rail + field palette (dark in both themes — it is a fixed surface) */
+  /* Checkbox — Figma 208:1336. Checked is the CRM blue, not the app accent;
+     unchecked borrows the disabled-input pair. */
+  --checkbox-bg: var(--color-crm-input-disabled-bg);
+  --checkbox-border: var(--color-crm-input-disabled-outline);
+  --checkbox-checked: var(--color-crm-link);
+  --checkbox-tick: var(--color-white);
+
+  /* Border-width slider — Figma "Border width" row in the Field tab. */
+  --slider-track: var(--color-crm-border-4);
+  --slider-fill: var(--accent);
+  --slider-knob: var(--color-white);
+  --slider-knob-border: var(--color-crm-border-2);
+
+  /* Field Properties side sheet — Figma 208:1319. */
+  --sheet-bg: var(--surface);
+  --sheet-border: var(--color-crm-border-3);
+  --sheet-shadow: 0 1px 8px var(--color-crm-sheet-shadow);
+  --sheet-heading: var(--color-crm-heading);
+  --sheet-section-title: var(--color-crm-heading);
+  --sheet-label: var(--color-crm-label);
+  --sheet-value: var(--color-crm-base);
+  --sheet-mandatory-bar: var(--color-crm-form-error);
+
   --rail-bg: var(--color-navy-900);
   --rail-tab-bg: var(--color-navy-800);
   --rail-tab-active-bg: var(--color-navy-900);
@@ -216,6 +253,20 @@
   --drag-ghost-border: var(--color-indigo-300);
   /* The row the dragged field vacated, left outlined in the palette. */
   --palette-slot-border: var(--color-navy-500);
+
+  /* Nav-rail search — CRM "builder input". No fill and no focus ring: the
+     variant is transparent by design and leans on the navy panel behind it.
+     The placeholder and the magnifier share one token, as CRM couples them. */
+  --search-bg: transparent;
+  --search-border: var(--color-navy-600);
+  --search-border-hover: var(--color-crm-search-border-hover);
+  --search-border-focus: var(--color-crm-link);
+  --search-border-error: var(--color-crm-form-error);
+  --search-text: var(--color-white);
+  --search-placeholder: var(--color-crm-search-placeholder);
+  --search-clear-bg: var(--color-crm-clear-bg);
+  --search-clear-bg-hover: var(--color-crm-clear-bg-hover);
+  --search-clear-glyph: var(--color-crm-base);
 
   /* Top bar (Figma header 876:4553) */
   --topbar-title: var(--color-crm-heading);
@@ -284,6 +335,10 @@
   --msg-info-text: var(--color-msg-info-text);
   --msg-info-icon: var(--color-msg-info-icon);
   --msg-shadow: 0 2px 6px var(--color-msg-shadow);
+  /* Figma 2055:44611 — the inline Undo link is `Primary Palette/Link` (#5464f2),
+     which the palette already carries as indigo-500. Shared by all four variants:
+     every Message Box background is pale, so the link does not re-tint per variant. */
+  --msg-link: var(--color-indigo-500);
 
   /* Shadows */
   --shadow: 0 1px 3px var(--color-shadow-soft), 0 4px 16px var(--color-shadow-ambient);
@@ -298,6 +353,8 @@
   --radius: 8px;
   --radius-sm: 5px;
   --radius-xs: 4px;
+  /* CRM --lyte-input-border-radius, not the 5px the rest of the app uses. */
+  --search-radius: 6px;
   --font-sans: 'Zoho Puvi', 'DM Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'DM Mono', ui-monospace, monospace;
 }
@@ -377,6 +434,10 @@
   --wf-field-radius: var(--radius-sm);
   --wf-field-text: var(--color-slate-900);
   --wf-field-placeholder: var(--color-slate-500);
+  /* Figma Field tab — "Focus" under Field Style, "Border width" under Input
+     Style. The width is a plain length, so it is not a WF_COLOR_TOKEN. */
+  --wf-field-focus: var(--color-crm-input-focus);
+  --wf-field-border-width: 2px;
 
   --wf-btn-bg: var(--color-indigo-600);
   --wf-btn-border: var(--color-indigo-600);

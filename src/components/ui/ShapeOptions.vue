@@ -31,7 +31,12 @@ const model = defineModel({ type: String })
       :aria-label="opt.label"
       @click="model = opt.value"
     >
-      <span v-if="tile" class="shape-preview" :style="{ borderRadius: opt.rx }" />
+      <span
+        v-if="tile"
+        class="shape-preview"
+        :class="{ 'shape-preview--rule': opt.rule }"
+        :style="opt.rule ? null : { borderRadius: opt.rx }"
+      />
       <BaseIcon
         v-else
         :name="opt.icon || 'shape-rect'"
@@ -98,6 +103,11 @@ const model = defineModel({ type: String })
 }
 .shape-opt--tile.active .shape-preview {
   border-color: var(--control-selected-border);
+}
+/* The `line` shape has no box to round — its tile previews the underline. */
+.shape-preview--rule {
+  height: 0;
+  border-width: 0 0 2px;
 }
 .shape-badge {
   position: absolute;

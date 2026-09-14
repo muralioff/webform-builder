@@ -4,10 +4,11 @@ import TopBar from './components/TopBar.vue'
 import FieldsPanel from './components/FieldsPanel.vue'
 import FormCanvas from './components/FormCanvas.vue'
 import PropertiesPanel from './components/PropertiesPanel.vue'
+import FieldPropertiesSheet from './components/FieldPropertiesSheet.vue'
 import ToastHost from './components/ui/ToastHost.vue'
 import { useBuilderStore } from './composables/useBuilderStore'
 
-const { state, initBuilder } = useBuilderStore()
+const { state, selectedField, initBuilder } = useBuilderStore()
 onMounted(initBuilder)
 </script>
 
@@ -17,7 +18,10 @@ onMounted(initBuilder)
     <div class="layout">
       <FieldsPanel />
       <FormCanvas />
-      <PropertiesPanel v-if="state.ui.panelOpen" />
+      <!-- One right-hand slot: the field sheet wins while a field is selected,
+           and closing it reveals whatever the panel was showing. -->
+      <FieldPropertiesSheet v-if="state.ui.fieldSheetOpen && selectedField" />
+      <PropertiesPanel v-else-if="state.ui.panelOpen" />
     </div>
     <ToastHost />
   </div>

@@ -91,7 +91,8 @@ const state = reactive({
     '--wf-width': '600px',
     '--wf-field-radius': '5px',
     '--wf-btn-radius': '5px',
-    '--wf-reset-radius': '5px'
+    '--wf-reset-radius': '5px',
+    '--wf-field-border-width': '2px'
   },
 
   /* Non-token form style that changes structure rather than a value. */
@@ -102,6 +103,9 @@ const state = reactive({
        field is selected; the panel's own close button puts it back. */
     panelOpen: false,
     activeTab: 'basic',
+    /* Per-field configuration is a side sheet of its own (Figma 208:1319), not a
+       tab — the panel describes the form, the sheet describes one field. */
+    fieldSheetOpen: false,
     activeRail: 'fields',
     fieldsSubTab: 'primary',
     collapsedRelated: [],
@@ -119,6 +123,11 @@ const WF_COLOR_TOKENS = [
   '--wf-border-color',
   '--wf-field-bg',
   '--wf-field-border',
+  '--wf-field-text',
+  '--wf-field-placeholder',
+  '--wf-field-focus',
+  '--wf-label-color',
+  '--wf-required-color',
   '--wf-btn-bg',
   '--wf-btn-border',
   '--wf-btn-text',
@@ -196,6 +205,20 @@ const buttonsStacked = computed(
   () => state.resetButton.enabled && (state.button.fullWidth || state.resetButton.fullWidth)
 )
 
+/**
+ * "Fill Full Width" is one decision, not two: a full-width button spans the form,
+ * so the pair has to stack and both expand together. Both switches therefore read
+ * and write this single value rather than their own flag, which keeps the panel
+ * honest about what the canvas is already doing via `buttonsStacked`.
+ */
+const buttonsFullWidth = computed({
+  get: () => state.button.fullWidth || state.resetButton.fullWidth,
+  set: (value) => {
+    state.button.fullWidth = value
+    state.resetButton.fullWidth = value
+  }
+})
+
 const MIN_FORM_WIDTH = 360
 const MAX_FORM_WIDTH = 1000
 
@@ -235,8 +258,13 @@ const formWidthCss = computed(() => lastValidWidth.value)
 
 function selectField(id) {
   state.ui.selectedFieldId = id
-  state.ui.activeTab = 'field'
-  state.ui.panelOpen = true
+  state.ui.fieldSheetOpen = true
+}
+
+/** Closing the sheet also drops the selection — there is nothing left to show. */
+function closeFieldSheet() {
+  state.ui.fieldSheetOpen = false
+  state.ui.selectedFieldId = null
 }
 
 /** Settings button — opens the form-level (Basic) properties. */
@@ -256,6 +284,7 @@ function closePanel() {
 
 function clearSelection() {
   state.ui.selectedFieldId = null
+  state.ui.fieldSheetOpen = false
 }
 
 function addField(type, index = null, overrides = {}) {
@@ -269,13 +298,27 @@ function addField(type, index = null, overrides = {}) {
   return field
 }
 
+/**
+ * Removes a field and hands back everything needed to put it back — the field
+ * itself and the index it sat at — so the caller can offer Undo. Returns null
+ * when the field is pinned by the module, which reads the same as the old
+ * `false` at a call site that only tests for success.
+ */
 function removeField(id) {
-  const i = state.fields.findIndex((f) => f.id === id)
-  if (i === -1) return false
-  if (state.fields[i].removable === false) return false
-  state.fields.splice(i, 1)
+  const index = state.fields.findIndex((f) => f.id === id)
+  if (index === -1) return null
+  if (state.fields[index].removable === false) return null
+  const [field] = state.fields.splice(index, 1)
   if (state.ui.selectedFieldId === id) clearSelection()
-  return true
+  return { field, index }
+}
+
+/** The Undo half of removeField(): same field, same position. */
+function restoreField(removal) {
+  if (!removal) return
+  const { field, index } = removal
+  state.fields.splice(Math.min(Math.max(index, 0), state.fields.length), 0, field)
+  selectField(field.id)
 }
 
 function duplicateField(id) {
@@ -336,14 +379,17 @@ export function useBuilderStore() {
     relatedSections,
     relatedCount,
     buttonsStacked,
+    buttonsFullWidth,
     toggleRelatedSection,
     selectField,
     clearSelection,
     openFormSettings,
+    closeFieldSheet,
     openPanel,
     closePanel,
     addField,
     removeField,
+    restoreField,
     duplicateField,
     setToken,
     setAppTheme,

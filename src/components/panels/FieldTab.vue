@@ -1,117 +1,91 @@
 <script setup>
 import PanelSection from '../ui/PanelSection.vue'
-import InputControl from '../ui/InputControl.vue'
-import ToggleSwitch from '../ui/ToggleSwitch.vue'
-import BaseIcon from '../ui/BaseIcon.vue'
+import ColorControl from '../ui/ColorControl.vue'
+import ShapeOptions from '../ui/ShapeOptions.vue'
+import SliderControl from '../ui/SliderControl.vue'
 import { useBuilderStore } from '@/composables/useBuilderStore'
 
-const { state, selectedField, removeField, duplicateField } = useBuilderStore()
+/**
+ * Form Properties → Field tab (Figma 970:6458 / 1046:7512 / 1046:7925 — the same
+ * tab with a different Input Shape selected).
+ *
+ * This tab styles *every* field on the form. Configuring one field — its label,
+ * placeholder, validation — is a different job and lives in the Field Properties
+ * side sheet, which opens when a field on the canvas is selected.
+ */
+const { state } = useBuilderStore()
+
+/* Four tiles in the frame. `line` has no box to round, so it previews as a rule
+   rather than a rectangle. */
+const SHAPES = [
+  { value: 'sharp', rx: '0px', label: 'Sharp' },
+  { value: 'round', rx: '4px', label: 'Round' },
+  { value: 'pill', rx: '100px', label: 'Pill' },
+  { value: 'line', rule: true, label: 'Line' }
+]
 </script>
 
 <template>
   <div>
-    <p v-if="!selectedField" class="field-prop-hint">
-      <BaseIcon name="info-circle" :size="13" />
-      Click a field on the canvas to configure it
-    </p>
-
+    <!-- Figma "Field Style" 1046:6939 — the text around the input. -->
     <PanelSection
-      v-else
-      :title="selectedField.label || 'Field Properties'"
-      icon="field-props"
-      tint="var(--color-indigo-50)"
-      icon-color="var(--warning)"
+      title="Field Style"
+      icon="section-field-style"
+      tint="var(--success-subtle)"
+      icon-color="var(--success)"
     >
       <div class="prop-row">
-        <InputControl label="Label" v-model="selectedField.label" />
+        <ColorControl v-model="state.theme['--wf-label-color']" label="Label" />
       </div>
       <div class="prop-row">
-        <InputControl label="Placeholder Text" v-model="selectedField.placeholder" />
+        <ColorControl
+          v-model="state.theme['--wf-field-placeholder']"
+          label="Instruction &amp; Placeholder"
+        />
       </div>
-
-      <div class="prop-divider" />
-
       <div class="prop-row">
-        <p class="prop-label">Validation</p>
-        <ToggleSwitch v-model="selectedField.required" label="Mark as Required Field" />
+        <ColorControl v-model="state.theme['--wf-field-focus']" label="Focus" />
       </div>
-
-      <div class="prop-divider" />
-
       <div class="prop-row">
-        <p class="prop-label">Advanced</p>
-        <ToggleSwitch v-model="selectedField.hidden" label="Mark as hidden field" />
-        <ToggleSwitch v-model="selectedField.showHint" label="Add Hint message" />
+        <ColorControl v-model="state.theme['--wf-required-color']" label="Mandatory Asterix" />
       </div>
-      <div v-if="selectedField.showHint" class="prop-row">
-        <InputControl label="Hint Text" v-model="selectedField.hintText" placeholder="e.g. Use your work email" />
-      </div>
-
-      <div class="prop-divider" />
-
       <div class="prop-row">
-        <InputControl label="Default Value" v-model="selectedField.defaultValue" placeholder="Leave empty for no default" />
+        <ColorControl v-model="state.theme['--wf-error-color']" label="Error Message" />
       </div>
+    </PanelSection>
 
-      <div class="prop-divider" />
-
-      <div class="field-actions">
-        <button type="button" class="act" @click="duplicateField(selectedField.id)">
-          <BaseIcon name="plus" :size="12" /> Duplicate
-        </button>
-        <button
-          type="button"
-          class="act act--danger"
-          :disabled="!selectedField.removable"
-          :title="selectedField.removable ? 'Remove field' : 'This field is required by the module'"
-          @click="removeField(selectedField.id)"
-        >
-          <BaseIcon name="trash" :size="12" /> Remove
-        </button>
+    <!-- Figma "Input Style" 970:6472 — the input box itself. -->
+    <PanelSection
+      title="Input Style"
+      icon="field-single-line"
+      tint="var(--section-icon-pink-bg)"
+      icon-color="var(--section-icon-pink)"
+    >
+      <div class="prop-row">
+        <ShapeOptions
+          v-model="state.fieldShape"
+          label="Input Shape"
+          :options="SHAPES"
+          tile
+        />
+      </div>
+      <div class="prop-row">
+        <SliderControl
+          v-model="state.theme['--wf-field-border-width']"
+          label="Border width"
+          :min="0"
+          :max="6"
+        />
+      </div>
+      <div class="prop-row">
+        <ColorControl v-model="state.theme['--wf-field-text']" label="Value" />
+      </div>
+      <div class="prop-row">
+        <ColorControl v-model="state.theme['--wf-field-bg']" label="Background Color" />
+      </div>
+      <div class="prop-row">
+        <ColorControl v-model="state.theme['--wf-field-border']" label="Border Color" />
       </div>
     </PanelSection>
   </div>
 </template>
-
-<style scoped>
-.field-prop-hint {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 16px;
-  font-size: 11px;
-  color: var(--text-subtle);
-}
-.field-actions {
-  display: flex;
-  gap: 8px;
-}
-.act {
-  flex: 1;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-sunken);
-  color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 500;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-}
-.act:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.act--danger:hover:not(:disabled) {
-  border-color: var(--danger);
-  color: var(--danger);
-  background: var(--danger-subtle);
-}
-.act:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-</style>

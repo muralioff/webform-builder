@@ -6,8 +6,17 @@ import { useBuilderStore } from '@/composables/useBuilderStore'
 import { createField } from '@/data/fieldTypes'
 import { useToast } from '@/composables/useToast'
 
-const { state, selectField, removeField, openFormSettings, openPanel, formWidthCss, buttonsStacked } =
-  useBuilderStore()
+const {
+  state,
+  selectField,
+  clearSelection,
+  removeField,
+  restoreField,
+  openFormSettings,
+  openPanel,
+  formWidthCss,
+  buttonsStacked
+} = useBuilderStore()
 const { toast } = useToast()
 
 /**
@@ -52,8 +61,17 @@ useCanvasSortable(listEl, {
 })
 
 function onRemove(field) {
-  if (removeField(field.id)) toast.success(`${field.label} removed`)
-  else toast.warning(`${field.label} is required and can’t be removed`)
+  const removal = removeField(field.id)
+  if (!removal) {
+    toast.warning(`${field.label} is required and can’t be removed`)
+    return
+  }
+  /* Figma 2055:44611 — removal is the one destructive action here, so it is the
+     one that offers Undo. restoreField puts the field back at its old index, and
+     the palette re-hides it on its own since "used" is derived from state.fields. */
+  toast.success(`${field.label} removed`, {
+    action: { label: 'Undo', handler: () => restoreField(removal) }
+  })
 }
 </script>
 
@@ -61,7 +79,7 @@ function onRemove(field) {
   <div
     class="canvas-area"
     :data-wallpaper="state.background.wallpaper"
-    @click.self="state.ui.selectedFieldId = null"
+    @click.self="clearSelection"
   >
     <button
       v-if="!state.ui.panelOpen"
@@ -404,7 +422,7 @@ function onRemove(field) {
   width: 100%;
   height: 38px;
   padding: 0 12px;
-  border: 1.5px solid var(--wf-field-border);
+  border: var(--wf-field-border-width) solid var(--wf-field-border);
   border-radius: var(--wf-field-radius);
   background: var(--wf-field-bg);
   color: var(--wf-field-text);
@@ -416,6 +434,10 @@ function onRemove(field) {
 .preview-input::placeholder {
   color: var(--wf-field-placeholder);
 }
+/* Figma Field tab → Field Style → "Focus". */
+.preview-input:focus {
+  border-color: var(--wf-field-focus);
+}
 .preview-textarea {
   height: 88px;
   padding: 10px 12px;
@@ -426,7 +448,7 @@ function onRemove(field) {
 /* `line` shape: underline only. */
 .form-card[data-shape='line'] .preview-input {
   border: none;
-  border-bottom: 1.5px solid var(--wf-field-border);
+  border-bottom: var(--wf-field-border-width) solid var(--wf-field-border);
   border-radius: 0;
   background: transparent;
   padding-inline: 2px;
@@ -443,7 +465,7 @@ function onRemove(field) {
   align-items: center;
   gap: 6px;
   padding: 0 10px;
-  border: 1.5px solid var(--wf-field-border);
+  border: var(--wf-field-border-width) solid var(--wf-field-border);
   border-radius: var(--wf-field-radius);
   background: var(--wf-field-bg);
   color: var(--wf-label-color);
@@ -455,7 +477,7 @@ function onRemove(field) {
 }
 .form-card[data-shape='line'] .phone-code {
   border: none;
-  border-bottom: 1.5px solid var(--wf-field-border);
+  border-bottom: var(--wf-field-border-width) solid var(--wf-field-border);
   border-radius: 0;
   background: transparent;
 }
