@@ -131,22 +131,26 @@ const heading = computed(
         </div>
       </div>
 
-      <p v-if="allFieldsUsed" class="palette-empty">
-          Every field has been added to the form.
-        </p>
-        <p v-else-if="!visibleFields.length" class="palette-empty">
-          No fields match “{{ state.ui.paletteSearch }}”.
-        </p>
+      <div v-if="allFieldsUsed" class="empty-state">
+          <BaseIcon name="empty-state" size="73.5" class="empty-state-art" />
+          <p class="empty-state-title">All Fields Added</p>
+          <p class="empty-state-hint">Every field in this module is already on the form</p>
+        </div>
+        <div v-else-if="!visibleFields.length" class="empty-state">
+          <BaseIcon name="empty-state" size="73.5" class="empty-state-art" />
+          <p class="empty-state-title">No Fields Found</p>
+          <p class="empty-state-hint">Nothing matches “{{ state.ui.paletteSearch }}”</p>
+        </div>
         </div>
 
         <!-- ── Related — Figma 1468:32275 (empty) / 1468:31977 (populated) ──
              Sections are derived from the lookup fields on the canvas. Rows are
              display-only for now, like the other new lists. -->
         <div v-show="state.ui.fieldsSubTab === 'related'">
-          <div v-if="!relatedSections.length" class="related-empty">
-            <BaseIcon name="empty-related" size="73.5" class="related-empty-art" />
-            <p class="related-empty-title">No Related Fields Found</p>
-            <p class="related-empty-hint">Add Lookup fields to view their related fields here</p>
+          <div v-if="!relatedSections.length" class="empty-state empty-state--pane">
+            <BaseIcon name="empty-state" size="73.5" class="empty-state-art" />
+            <p class="empty-state-title">No Related Fields Found</p>
+            <p class="empty-state-hint">Add Lookup fields to view their related fields here</p>
           </div>
 
           <template v-else>
@@ -280,6 +284,10 @@ const heading = computed(
   display: block;
   padding: 16px 16px 0;
   overflow-y: auto;
+  /* The app's scrollbar is a classic 5px one (base.css), so it takes layout
+     width — content reflows by 5px the moment a pane becomes scrollable. Reserve
+     the gutter always, so switching tabs cannot resize what is already on screen. */
+  scrollbar-gutter: stable;
   background: var(--palette-bg);
 }
 /* ── Fields sub-tabs — Figma "Primary Tab" 1468:32426 ── */
@@ -376,24 +384,30 @@ const heading = computed(
 }
 
 /* ── Related empty state — Figma 1468:32309 ── */
-.related-empty {
+/* Figma 1468:32275 — one empty state, used by Related and by the field palette.
+   Only the top offset differs: Related owns its whole pane, while the palette's
+   sits under the layout picker and the search bar. */
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 120px 15px 0;
+  padding: 40px 15px 24px;
   text-align: center;
 }
-.related-empty-art {
+.empty-state--pane {
+  padding-top: 120px;
+}
+.empty-state-art {
   width: 73.5px;
   height: 56.36px;
 }
-.related-empty-title {
+.empty-state-title {
   font-size: 14px;
   color: var(--rail-text);
 }
-.related-empty-hint {
+.empty-state-hint {
   font-size: 14px;
   color: var(--palette-placeholder);
 }
@@ -489,10 +503,5 @@ const heading = computed(
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.palette-empty {
-  font-size: 12px;
-  color: var(--palette-placeholder);
-  padding: 4px 2px 24px;
 }
 </style>

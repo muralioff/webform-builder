@@ -109,6 +109,10 @@ function onRemove(field) {
 .field-sheet-body {
   flex: 1;
   overflow-y: auto;
+  /* The app's scrollbar is a classic 5px one (base.css), so it takes layout
+     width — content reflows by 5px the moment a pane becomes scrollable. Reserve
+     the gutter always, so switching tabs cannot resize what is already on screen. */
+  scrollbar-gutter: stable;
   display: flex;
   flex-direction: column;
   gap: 20px;
