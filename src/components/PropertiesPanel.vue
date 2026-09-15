@@ -1,5 +1,5 @@
 <script setup>
-import BaseIcon from './ui/BaseIcon.vue'
+import SideSheet from './ui/SideSheet.vue'
 import BasicTab from './panels/BasicTab.vue'
 import FieldTab from './panels/FieldTab.vue'
 import ButtonTab from './panels/ButtonTab.vue'
@@ -17,20 +17,12 @@ const TABS = [
 </script>
 
 <template>
-  <aside class="right-panel">
-    <header class="panel-head">
-      <h2>Form Properties</h2>
-      <button
-        type="button"
-        class="panel-close"
-        title="Close panel"
-        aria-label="Close panel"
-        @click="closePanel"
-      >
-        <BaseIcon name="close" :size="16" />
-      </button>
-    </header>
-
+  <SideSheet
+    class="right-panel"
+    title="Form Properties"
+    close-label="Close panel"
+    @close="closePanel"
+  >
     <div class="panel-tabs" role="tablist">
       <button
         v-for="tab in TABS"
@@ -49,54 +41,13 @@ const TABS = [
     <div class="panel-scroll">
       <component :is="TABS.find((t) => t.id === state.ui.activeTab).component" />
     </div>
-  </aside>
+  </SideSheet>
 </template>
 
 <style scoped>
-/* Figma: Component 354 (876:4513) */
-.right-panel {
-  width: var(--panel-w);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--surface);
-  border-left: 1px solid var(--panel-section-border);
-}
+/* Shell and header come from SideSheet; this file owns only what sits under it.
 
-/* Figma: Frame 18665 (876:4899) */
-.panel-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  padding: 10px 10px 10px 15px;
-  background: var(--panel-head-bg);
-  border-bottom: 1px solid var(--panel-head-border);
-}
-.panel-head h2 {
-  flex: 1;
-  min-width: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--panel-heading);
-}
-.panel-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  border: none;
-  border-radius: 20px;
-  background: var(--panel-head-bg);
-  color: var(--panel-value);
-  transition: background 0.15s;
-}
-.panel-close:hover {
-  background: var(--control-border);
-}
-
-/* Figma: Frame 18568 (876:4855) — left-aligned tabs with a rounded underline */
+   Figma: Frame 18568 (876:4855) — left-aligned tabs with a rounded underline */
 .panel-tabs {
   display: flex;
   gap: 30px;

@@ -1,5 +1,6 @@
 <script setup>
 import BaseIcon from './ui/BaseIcon.vue'
+import SideSheet from './ui/SideSheet.vue'
 import InputControl from './ui/InputControl.vue'
 import CheckboxControl from './ui/CheckboxControl.vue'
 import { useBuilderStore } from '@/composables/useBuilderStore'
@@ -27,21 +28,14 @@ function onRemove(field) {
 </script>
 
 <template>
-  <aside v-if="selectedField" class="field-sheet" aria-label="Field properties">
-    <header class="sheet-head">
-      <h2>Field Properties</h2>
-      <button
-        type="button"
-        class="sheet-close"
-        title="Close"
-        aria-label="Close field properties"
-        @click="closeFieldSheet"
-      >
-        <BaseIcon name="close" :size="16" />
-      </button>
-    </header>
-
-    <div class="sheet-body">
+  <SideSheet
+    v-if="selectedField"
+    class="field-sheet"
+    title="Field Properties"
+    close-label="Close field properties"
+    @close="closeFieldSheet"
+  >
+    <div class="field-sheet-body">
       <!-- 208:1329 — a field with no label has nothing to render, so Label is
            the one mandatory value here. -->
       <div class="sheet-block">
@@ -104,56 +98,15 @@ function onRemove(field) {
         </button>
       </div>
     </div>
-  </aside>
+  </SideSheet>
 </template>
 
 <style scoped>
-.field-sheet {
-  width: var(--panel-w);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--sheet-bg);
-  border-left: 1px solid var(--sheet-border);
-  box-shadow: var(--sheet-shadow);
-}
+/* Shell and header come from SideSheet — the same 46px header as Form
+   Properties. Everything below it is this sheet's own.
 
-/* 208:1320 — 56px tall, title inset 20px, close button 10px from the edge. */
-.sheet-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  height: 56px;
-  padding: 0 10px 0 20px;
-  border-bottom: 1px solid var(--sheet-border);
-}
-.sheet-head h2 {
-  flex: 1;
-  min-width: 0;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 22px;
-  color: var(--sheet-heading);
-}
-.sheet-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  border: none;
-  border-radius: 20px;
-  background: none;
-  color: var(--panel-value);
-  transition: background 0.15s;
-}
-.sheet-close:hover {
-  background: var(--control-border);
-}
-
-/* 208:1326 — 16px top and bottom, rows inset 20px, 20px between blocks. */
-.sheet-body {
+   1484:34224 — 16px top and bottom, rows inset 20px, 20px between blocks. */
+.field-sheet-body {
   flex: 1;
   overflow-y: auto;
   display: flex;

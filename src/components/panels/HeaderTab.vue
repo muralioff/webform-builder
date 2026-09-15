@@ -14,8 +14,10 @@ import { useToast } from '@/composables/useToast'
 /**
  * Two independent regions:
  *
- *   Form Name & Description — the heading text. On by default; it is the thing
- *             a form is least likely to do without, so it leads the tab.
+ *   Title  — the heading and description drawn inside the form. Distinct from
+ *             the form's *name* (state.meta.name), which identifies the record
+ *             and shows in the top bar; this one is what a visitor reads. On by
+ *             default, so it leads the tab.
  *   Header  — the banner strip and the logo inside it. One switch, because the
  *             logo has nowhere to render without the banner. Off by default.
  *
@@ -67,7 +69,7 @@ onMounted(() => applyFocus(state.ui.focusControl))
 <template>
   <div>
     <PanelSection
-      title="Form Name &amp; Description"
+      title="Title"
       icon="section-typography"
       tint="var(--section-icon-violet-bg)"
       icon-color="var(--section-icon-violet)"
@@ -80,7 +82,7 @@ onMounted(() => applyFocus(state.ui.focusControl))
         <div class="prop-row">
           <InputControl
             ref="titleInput"
-            label="Form Name"
+            label="Form Title"
             v-model="state.header.title"
             placeholder="Contact Us"
           />
@@ -90,7 +92,7 @@ onMounted(() => applyFocus(state.ui.focusControl))
             ref="descInput"
             label="Description"
             v-model="state.header.description"
-            placeholder="Description"
+            placeholder="Tell people what this form is for"
             multiline
             :rows="3"
           />

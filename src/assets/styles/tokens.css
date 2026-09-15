@@ -155,7 +155,6 @@
   /* Checkbox / disabled input (Figma 208:1319 — Field Properties sheet) */
   --color-crm-input-disabled-bg: #f4f5f6;
   --color-crm-input-disabled-outline: #dbe0e5;
-  --color-crm-sheet-shadow: rgba(208, 221, 234, 0.87);
 
   /* Alpha overlays — no theme swap, they sit on top of whatever is beneath */
   --color-shadow-soft: rgba(0, 0, 0, 0.08);
@@ -214,11 +213,8 @@
   --slider-knob: var(--color-white);
   --slider-knob-border: var(--color-crm-border-2);
 
-  /* Field Properties side sheet — Figma 208:1319. */
-  --sheet-bg: var(--surface);
-  --sheet-border: var(--color-crm-border-3);
-  --sheet-shadow: 0 1px 8px var(--color-crm-sheet-shadow);
-  --sheet-heading: var(--color-crm-heading);
+  /* Field Properties side sheet body — Figma 1484:34224. The shell and header
+     are shared with Form Properties and use the --panel-head-* tokens. */
   --sheet-section-title: var(--color-crm-heading);
   --sheet-label: var(--color-crm-label);
   --sheet-value: var(--color-crm-base);

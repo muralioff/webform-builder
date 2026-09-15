@@ -43,9 +43,10 @@ const state = reactive({
 
   layout: 'standard',
 
-  /* The form's name and description. Its own switch, independent of the banner:
-     a form can have a heading with no banner, or a banner with no heading.
-     On by default; the banner is the part a form starts without. */
+  /* The title and description drawn inside the form — not meta.name, which is
+     the form's own name and belongs to the record, not the page. Its own switch,
+     independent of the banner: a title with no banner and a banner with no title
+     are both valid. On by default; the banner is the part a form starts without. */
   header: {
     title: 'Contact Us',
     description: "We'd love to hear from you, Please drop us a line if you've any query",
