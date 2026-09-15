@@ -437,7 +437,7 @@
   /* Figma Field tab — "Focus" under Field Style, "Border width" under Input
      Style. The width is a plain length, so it is not a WF_COLOR_TOKEN. */
   --wf-field-focus: var(--color-crm-input-focus);
-  --wf-field-border-width: 2px;
+  --wf-field-border-width: 1px;
 
   --wf-btn-bg: var(--color-indigo-600);
   --wf-btn-border: var(--color-indigo-600);

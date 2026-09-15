@@ -10,11 +10,13 @@ const {
   state,
   selectField,
   clearSelection,
+  editHeader,
   removeField,
   restoreField,
   openFormSettings,
   openPanel,
   formWidthCss,
+  fieldSheetVisible,
   buttonsStacked
 } = useBuilderStore()
 const { toast } = useToast()
@@ -45,6 +47,12 @@ const wrapStyle = computed(() => ({
    attribute instead of a token. Everything else is pure radius. */
 const RADII = { sharp: '0px', round: '5px', soft: '8px', pill: '19px', line: '0px' }
 const shapeRadius = computed(() => RADII[state.fieldShape] ?? '5px')
+
+/* Trimmed, not just truthy: clearing the textarea can leave a space or a newline
+   behind, and that was still enough to render an empty outlined row. The
+   interpolation is kept tight against its tags for the same reason — Vue's
+   whitespace handling would otherwise put a space inside the element. */
+const hasDescription = computed(() => Boolean(state.header.description?.trim()))
 
 const listEl = ref(null)
 
@@ -82,7 +90,7 @@ function onRemove(field) {
     @click.self="clearSelection"
   >
     <button
-      v-if="!state.ui.panelOpen"
+      v-if="!state.ui.panelOpen && !fieldSheetVisible"
       type="button"
       class="settings-btn"
       title="Form settings"
@@ -99,7 +107,10 @@ function onRemove(field) {
         :data-shape="state.fieldShape"
       >
         <!-- Banner -->
-        <div v-if="state.branding.bannerHeight !== '0px'" class="form-banner">
+        <div
+          v-if="state.branding.visible && state.branding.bannerHeight !== '0px'"
+          class="form-banner"
+        >
           <div class="form-banner-logo" :style="{ alignItems: state.branding.logoPosition }">
             <span class="logo-circle" :data-size="state.branding.logoSize">
               <BaseIcon name="star" :size="20" />
@@ -113,17 +124,21 @@ function onRemove(field) {
         <!-- Body -->
         <div class="form-body">
           <header v-if="state.header.visible" class="form-header">
-            <h2 class="form-title">{{ state.header.title }}</h2>
-            <p v-if="state.header.description" class="form-desc">
-              {{ state.header.description }}
-            </p>
+            <h2 class="form-title canvas-editable" @click.stop="editHeader('title')">
+              {{ state.header.title }}
+            </h2>
+            <p
+              v-if="hasDescription"
+              class="form-desc canvas-editable"
+              @click.stop="editHeader('description')"
+            >{{ state.header.description }}</p>
           </header>
 
           <div ref="listEl" class="field-list">
             <div
               v-for="field in state.fields"
               :key="field.id"
-              class="preview-field"
+              class="preview-field canvas-editable"
               :class="{
                 'is-active': state.ui.selectedFieldId === field.id,
                 'is-hidden': field.hidden
@@ -314,6 +329,11 @@ function onRemove(field) {
 }
 .form-header {
   margin-bottom: 22px;
+  /* A name or description can arrive as one unbroken run of characters with no
+     space to wrap at, and the card clips rather than scrolls. Inherited, so it
+     covers the title and the description together: break inside a word, but only
+     when the word cannot fit on a line of its own. */
+  overflow-wrap: break-word;
 }
 .form-title {
   font-size: 1.65em;
@@ -326,15 +346,18 @@ function onRemove(field) {
   color: var(--wf-label-color);
 }
 
+
 .field-list {
   display: flex;
   flex-direction: column;
   min-height: 40px;
 }
 
-.preview-field {
+/* The outline that says "this block is editable". Shared by the field rows and
+   by the form's name and description — the header just has no grip or delete,
+   since there is nothing to reorder and nothing to remove. */
+.canvas-editable {
   position: relative;
-  margin-bottom: 16px;
   padding: 4px 6px;
   margin-inline: -6px;
   border: 1.5px solid transparent;
@@ -342,12 +365,16 @@ function onRemove(field) {
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
-.preview-field:hover {
+.canvas-editable:hover {
   border-color: var(--drag-ghost-border);
 }
-.preview-field.is-active {
+.canvas-editable.is-active {
   border-color: var(--accent);
   background: var(--focus-ring-soft);
+}
+
+.preview-field {
+  margin-bottom: 16px;
 }
 .preview-field.is-hidden {
   opacity: 0.55;

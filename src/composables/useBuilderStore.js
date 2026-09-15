@@ -43,6 +43,9 @@ const state = reactive({
 
   layout: 'standard',
 
+  /* The form's name and description. Its own switch, independent of the banner:
+     a form can have a heading with no banner, or a banner with no heading.
+     On by default; the banner is the part a form starts without. */
   header: {
     title: 'Contact Us',
     description: "We'd love to hear from you, Please drop us a line if you've any query",
@@ -65,7 +68,9 @@ const state = reactive({
     fullWidth: false
   },
 
+  /* The banner strip and the logo that sits in it — one region, one switch. */
   branding: {
+    visible: false,
     name: 'YourBrand',
     bannerHeight: '140px',
     logoSize: 'M',
@@ -92,7 +97,7 @@ const state = reactive({
     '--wf-field-radius': '5px',
     '--wf-btn-radius': '5px',
     '--wf-reset-radius': '5px',
-    '--wf-field-border-width': '2px'
+    '--wf-field-border-width': '1px'
   },
 
   /* Non-token form style that changes structure rather than a value. */
@@ -106,6 +111,9 @@ const state = reactive({
     /* Per-field configuration is a side sheet of its own (Figma 208:1319), not a
        tab — the panel describes the form, the sheet describes one field. */
     fieldSheetOpen: false,
+    /* Which control the panel should put the caret in once it opens — set when
+       something on the canvas is clicked, cleared by whoever answers it. */
+    focusControl: null,
     activeRail: 'fields',
     fieldsSubTab: 'primary',
     collapsedRelated: [],
@@ -198,6 +206,13 @@ const relatedSections = computed(() => {
 const relatedCount = computed(() => relatedSections.value.length)
 
 /**
+ * Whether the Field Properties sheet is actually on screen — it needs both the
+ * flag and a field to describe. Derived here rather than repeated at each call
+ * site, so the layout and the canvas cannot disagree about what is showing.
+ */
+const fieldSheetVisible = computed(() => state.ui.fieldSheetOpen && selectedField.value !== null)
+
+/**
  * Figma 970:6236 — with Reset on, turning either "Fill Full Width" switch on
  * makes BOTH buttons full width and stacks them, Submit above Reset.
  */
@@ -265,6 +280,17 @@ function selectField(id) {
 function closeFieldSheet() {
   state.ui.fieldSheetOpen = false
   state.ui.selectedFieldId = null
+}
+
+/**
+ * Canvas → panel: clicking the form's name or description opens the tab that
+ * edits it and drops the caret in the right field, so the text is editable from
+ * where you noticed it rather than only from the panel.
+ */
+function editHeader(part) {
+  clearSelection()
+  openPanel('header')
+  state.ui.focusControl = part
 }
 
 /** Settings button — opens the form-level (Basic) properties. */
@@ -378,12 +404,14 @@ export function useBuilderStore() {
     formWidthCss,
     relatedSections,
     relatedCount,
+    fieldSheetVisible,
     buttonsStacked,
     buttonsFullWidth,
     toggleRelatedSection,
     selectField,
     clearSelection,
     openFormSettings,
+    editHeader,
     closeFieldSheet,
     openPanel,
     closePanel,

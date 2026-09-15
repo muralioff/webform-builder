@@ -8,7 +8,7 @@ import FieldPropertiesSheet from './components/FieldPropertiesSheet.vue'
 import ToastHost from './components/ui/ToastHost.vue'
 import { useBuilderStore } from './composables/useBuilderStore'
 
-const { state, selectedField, initBuilder } = useBuilderStore()
+const { state, fieldSheetVisible, initBuilder } = useBuilderStore()
 onMounted(initBuilder)
 </script>
 
@@ -20,7 +20,7 @@ onMounted(initBuilder)
       <FormCanvas />
       <!-- One right-hand slot: the field sheet wins while a field is selected,
            and closing it reveals whatever the panel was showing. -->
-      <FieldPropertiesSheet v-if="state.ui.fieldSheetOpen && selectedField" />
+      <FieldPropertiesSheet v-if="fieldSheetVisible" />
       <PropertiesPanel v-else-if="state.ui.panelOpen" />
     </div>
     <ToastHost />
