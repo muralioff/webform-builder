@@ -16,7 +16,7 @@ const {
   openFormSettings,
   openPanel,
   formWidthCss,
-  fieldSheetVisible,
+  formPanelVisible,
   buttonsStacked
 } = useBuilderStore()
 const { toast } = useToast()
@@ -45,8 +45,15 @@ const wrapStyle = computed(() => ({
 
 /* `line` changes border structure rather than a value, so it rides on a data
    attribute instead of a token. Everything else is pure radius. */
-const RADII = { sharp: '0px', round: '5px', soft: '8px', pill: '19px', line: '0px' }
-const shapeRadius = computed(() => RADII[state.fieldShape] ?? '5px')
+/* The shape scale lives in tokens.css so inputs and buttons agree on what Round
+   is. `line` has no box to round — it is an underline. */
+const RADII = {
+  sharp: 'var(--shape-sharp)',
+  round: 'var(--shape-round)',
+  pill: 'var(--shape-pill)',
+  line: 'var(--shape-sharp)'
+}
+const shapeRadius = computed(() => RADII[state.fieldShape] ?? RADII.round)
 
 /* Trimmed, not just truthy: clearing the textarea can leave a space or a newline
    behind, and that was still enough to render an empty outlined row. The
@@ -60,7 +67,6 @@ useCanvasSortable(listEl, {
   onAdd({ type, label, index }) {
     const field = createField(type || 'single-line', { label })
     state.fields.splice(index, 0, field)
-    selectField(field.id)
     toast.success(`${field.label} added`)
   },
   onReorder(from, to) {
@@ -90,7 +96,7 @@ function onRemove(field) {
     @click.self="clearSelection"
   >
     <button
-      v-if="!state.ui.panelOpen && !fieldSheetVisible"
+      v-if="!formPanelVisible"
       type="button"
       class="settings-btn"
       title="Form settings"
@@ -197,23 +203,28 @@ function onRemove(field) {
           <!-- Reset sits before Submit in the DOM so a plain row puts it on the
                left; stacked mode reverses the column to lift Submit on top. -->
           <div class="form-footer-row" :class="{ 'is-stacked': buttonsStacked }">
-            <button
+            <!-- The hover outline lives on a wrapper: .canvas-editable paints a
+                 transparent border, which on the button itself would replace the
+                 button's own. -->
+            <span
               v-if="state.resetButton.enabled"
-              class="reset-btn"
+              class="btn-slot canvas-editable"
               :class="{ 'is-full': buttonsStacked }"
-              type="button"
               @click.stop="openPanel('button')"
             >
-              {{ state.resetButton.label || 'Reset' }}
-            </button>
-            <button
-              class="submit-btn"
+              <button class="reset-btn" type="button">
+                {{ state.resetButton.label || 'Reset' }}
+              </button>
+            </span>
+            <span
+              class="btn-slot canvas-editable"
               :class="{ 'is-full': buttonsStacked || (!state.resetButton.enabled && state.button.fullWidth) }"
-              type="button"
               @click.stop="openPanel('button')"
             >
-              {{ state.button.label || 'Submit' }}
-            </button>
+              <button class="submit-btn" type="button">
+                {{ state.button.label || 'Submit' }}
+              </button>
+            </span>
           </div>
         </div>
       </div>
@@ -276,6 +287,11 @@ function onRemove(field) {
 }
 
 .form-card {
+  /* Any string the form renders can arrive as one unbroken run of characters with
+     no space to wrap at, and the card clips rather than scrolls. Set here rather
+     than per element because it inherits: title, description, labels and hints
+     are all covered. Breaks inside a word only when it cannot fit on its own. */
+  overflow-wrap: break-word;
   font-family: var(--wf-font-family);
   font-size: var(--wf-font-size);
   background: var(--wf-bg);
@@ -329,11 +345,6 @@ function onRemove(field) {
 }
 .form-header {
   margin-bottom: 22px;
-  /* A name or description can arrive as one unbroken run of characters with no
-     space to wrap at, and the card clips rather than scrolls. Inherited, so it
-     covers the title and the description together: break inside a word, but only
-     when the word cannot fit on a line of its own. */
-  overflow-wrap: break-word;
 }
 .form-title {
   font-size: 1.65em;
@@ -548,11 +559,29 @@ function onRemove(field) {
   font-family: inherit;
   font-size: 0.93em;
   font-weight: 600;
-  transition: filter 0.15s, transform 0.1s, border-radius 0.15s;
+  transition: filter 0.15s, border-radius 0.15s;
 }
-.submit-btn.is-full,
-.reset-btn.is-full {
+/* The slot carries the full-width flag now; the button fills whatever it gets. */
+.btn-slot {
+  display: inline-flex;
+}
+/* "Fill Full Width" has to mean the form's full width, so the full-width slot
+   gives up .canvas-editable's 6px inset and 1.5px border and draws the same
+   outline outside its box instead. A normal-width button keeps the inset, which
+   is what makes its outline sit where the form title's does. */
+.btn-slot.is-full {
   width: 100%;
+  padding: 0;
+  margin-inline: 0;
+  border-width: 0;
+}
+.btn-slot.is-full > button {
+  width: 100%;
+}
+.btn-slot.is-full:hover {
+  outline: 1.5px solid var(--drag-ghost-border);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
 }
 
 /* Secondary action — outline by default, its own theme tokens. */
@@ -566,18 +595,16 @@ function onRemove(field) {
   font-family: inherit;
   font-size: 0.93em;
   font-weight: 600;
-  transition: filter 0.15s, transform 0.1s, border-radius 0.15s;
+  transition: filter 0.15s, border-radius 0.15s;
 }
+/* On the canvas these buttons are objects to configure, not controls to press:
+   clicking one opens the Button tab. Hover still responds, so they read as
+   something you can act on, but there is no pressed state — that belongs to the
+   real form in Preview, where the button actually does something. */
 .reset-btn:hover {
   filter: brightness(0.96);
 }
-.reset-btn:active {
-  transform: scale(0.97);
-}
 .submit-btn:hover {
   filter: brightness(0.93);
-}
-.submit-btn:active {
-  transform: scale(0.97);
 }
 </style>

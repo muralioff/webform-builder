@@ -1,21 +1,32 @@
 <script setup>
 import { useId } from 'vue'
+import BaseIcon from './BaseIcon.vue'
 
 /**
- * Figma 208:1336 / 212:971 — 15x15, 3px radius, 2px border.
+ * Figma 1254:12659 / 12661 / 12662 — 15x15, 3px radius, 2px border, three states.
  *
- * Checked is the CRM blue with a white tick; unchecked reuses the disabled-input
- * fill and outline. Drawn in CSS rather than as two icon assets, so the states
- * stay one element and the colours stay tokenised.
+ *   Default  white, outlined like an input
+ *   Checked  indigo fill with a white tick
+ *   Disable  grey fill and outline
+ *
+ * The box is drawn in CSS so the three states stay one element, but the tick is
+ * the exported vector (I1490:35306;15:508 — 8 x 5.7 starting at y=5): hand-rolling
+ * it from a rotated border gave the wrong proportions and cap.
  */
-defineProps({ label: { type: String, default: '' } })
+defineProps({
+  label: { type: String, default: '' },
+  disabled: { type: Boolean, default: false }
+})
 const model = defineModel({ type: Boolean })
 const id = useId()
 </script>
 
 <template>
-  <div class="checkbox-row">
-    <input :id="id" v-model="model" type="checkbox" class="checkbox" />
+  <div class="checkbox-row" :class="{ 'is-disabled': disabled }">
+    <span class="checkbox-box">
+      <input :id="id" v-model="model" type="checkbox" class="checkbox" :disabled="disabled" />
+      <BaseIcon name="checkbox-tick" :size="15" class="checkbox-tick" />
+    </span>
     <label v-if="label" :for="id" class="checkbox-label">{{ label }}</label>
   </div>
 </template>
@@ -27,8 +38,15 @@ const id = useId()
   gap: 8px;
 }
 
-.checkbox {
+.checkbox-box {
   position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+}
+
+.checkbox {
   width: 15px;
   height: 15px;
   flex-shrink: 0;
@@ -44,23 +62,31 @@ const id = useId()
   border-color: var(--checkbox-checked);
   background: var(--checkbox-checked);
 }
-/* The tick from the Figma asset: a 2px round-capped polyline, drawn with two
-   borders on a rotated box so it scales with the control. */
-.checkbox:checked::after {
-  content: '';
+/* The exported vector, sized to the box and coloured by token. It sits over the
+   input rather than inside it — a checkbox cannot have children. */
+.checkbox-tick {
   position: absolute;
-  left: 3px;
-  top: 0px;
-  width: 4px;
-  height: 8px;
-  border: solid var(--checkbox-tick);
-  border-width: 0 2px 2px 0;
-  border-radius: 1px;
-  transform: rotate(45deg);
+  inset: 0;
+  color: var(--checkbox-tick);
+  opacity: 0;
+  pointer-events: none;
+}
+.checkbox:checked ~ .checkbox-tick {
+  opacity: 1;
 }
 .checkbox:focus-visible {
-  outline: 2px solid var(--search-border-focus);
+  outline: 2px solid var(--control-focus-border);
   outline-offset: 1px;
+}
+.checkbox:disabled {
+  border-color: var(--checkbox-disabled-border);
+  background: var(--checkbox-disabled-bg);
+  cursor: not-allowed;
+}
+/* Flagged on the row: the input is no longer the label's immediate sibling. */
+.checkbox-row.is-disabled .checkbox-label {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .checkbox-label {

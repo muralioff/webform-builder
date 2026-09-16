@@ -6,7 +6,7 @@ import ButtonTab from './panels/ButtonTab.vue'
 import HeaderTab from './panels/HeaderTab.vue'
 import { useBuilderStore } from '@/composables/useBuilderStore'
 
-const { state, closePanel } = useBuilderStore()
+const { state } = useBuilderStore()
 
 const TABS = [
   { id: 'basic', label: 'Basic', component: BasicTab },
@@ -17,12 +17,7 @@ const TABS = [
 </script>
 
 <template>
-  <SideSheet
-    class="right-panel"
-    title="Form Properties"
-    close-label="Close panel"
-    @close="closePanel"
-  >
+  <SideSheet class="right-panel" title="Form Properties" :closable="false">
     <div class="panel-tabs" role="tablist">
       <button
         v-for="tab in TABS"

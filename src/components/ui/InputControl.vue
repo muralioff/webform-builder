@@ -3,7 +3,7 @@ import { ref, useId } from 'vue'
 import BaseIcon from './BaseIcon.vue'
 
 /** Figma: "Input" 880:6136, with the 11px helper / error line beneath. */
-defineProps({
+const props = defineProps({
   label: { type: String, default: '' },
   placeholder: { type: String, default: '' },
   error: { type: String, default: '' },
@@ -15,7 +15,13 @@ defineProps({
   /* Figma 1481:33992 — same box, a textarea instead of an input. `rows` sets the
      opening height; the corner grip lets the reader drag it taller. */
   multiline: { type: Boolean, default: false },
-  rows: { type: Number, default: 3 }
+  rows: { type: Number, default: 3 },
+  maxlength: { type: Number, default: null },
+  /* Arrow up/down nudges the number by this much, keeping whatever unit the
+     value carries ("600px" -> "610px"). 0 leaves the arrows alone. */
+  step: { type: Number, default: 0 },
+  min: { type: Number, default: null },
+  max: { type: Number, default: null }
 })
 const model = defineModel()
 const id = useId()
@@ -23,6 +29,23 @@ const msgId = `${id}-msg`
 
 /* Lets a parent put the caret here — used when a click on the canvas opens the
    panel at a particular field. */
+/* Splits "600px" into 600 and "px". Anything that is not a number with an
+   optional unit is left alone — the arrows keep their default behaviour. */
+const NUMERIC = /^\s*(-?\d*\.?\d+)\s*([a-z%]*)\s*$/i
+
+function onKeydown(event) {
+  if (!props.step) return
+  if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+  const parts = String(model.value ?? '').match(NUMERIC)
+  if (!parts) return
+  event.preventDefault()
+  let next = Number(parts[1]) + (event.key === 'ArrowUp' ? props.step : -props.step)
+  if (props.min !== null) next = Math.max(props.min, next)
+  if (props.max !== null) next = Math.min(props.max, next)
+  /* Rounded so repeated nudges cannot drift into floating-point dust. */
+  model.value = `${Math.round(next * 1000) / 1000}${parts[2]}`
+}
+
 const el = ref(null)
 defineExpose({
   focus: () => {
@@ -43,6 +66,7 @@ defineExpose({
         v-model="model"
         class="ctrl-input ctrl-textarea"
         :class="{ invalid: !!error }"
+        :maxlength="maxlength ?? undefined"
         :rows="rows"
         :placeholder="placeholder"
         :required="mandatory || undefined"
@@ -57,10 +81,12 @@ defineExpose({
         :type="type"
         class="ctrl-input"
         :class="{ invalid: !!error }"
+        :maxlength="maxlength ?? undefined"
         :placeholder="placeholder"
         :required="mandatory || undefined"
         :aria-invalid="!!error"
         :aria-describedby="error || help ? msgId : undefined"
+        @keydown="onKeydown"
       />
       <!-- Sits over the native resizer, which is hidden: same corner, Figma's
            glyph. pointer-events stay off so the drag still reaches the textarea. -->
@@ -107,16 +133,21 @@ defineExpose({
   color: var(--panel-value);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .ctrl-input::placeholder {
   color: var(--panel-label);
 }
 .ctrl-input:focus {
-  border-color: var(--control-selected-border);
+  border-color: var(--control-focus-border);
+  box-shadow: var(--control-focus-shadow);
 }
+/* Component/Input/Error&Mandatory-Outline — the same red as the mandatory bar. */
 .ctrl-input.invalid {
-  border-color: var(--danger);
+  border-color: var(--control-error-border);
+}
+.ctrl-input.invalid:focus {
+  box-shadow: none;
 }
 /* Figma 1481:33992 — 7px/10px padding on an 18px line box, and the reader can
    drag it taller but not narrower than the panel. */

@@ -9,12 +9,13 @@ import { useBuilderStore } from '@/composables/useBuilderStore'
 
 const { state, buttonsFullWidth } = useBuilderStore()
 
-/* Figma 965:5021 — the tile preview radius, and the radius applied to the real
-   button, are the same value. */
+/* `value` is the radius written to the button; `rx` only rounds the 36x16 tile
+   preview, where the same absolute radius would read as far rounder than it does
+   on a 38px control. */
 const SHAPES = [
-  { value: '0px', rx: '0px', label: 'Sharp' },
-  { value: '5px', rx: '4px', label: 'Round' },
-  { value: '19px', rx: '100px', label: 'Pill' }
+  { value: 'var(--shape-sharp)', rx: '0px', label: 'Sharp' },
+  { value: 'var(--shape-round)', rx: '4px', label: 'Round' },
+  { value: 'var(--shape-pill)', rx: '100px', label: 'Full Rounded' }
 ]
 
 const ALIGNMENTS = [

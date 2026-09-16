@@ -58,7 +58,6 @@ const state = reactive({
   button: {
     label: 'Submit',
     align: 'flex-end',
-    radius: '5px',
     fullWidth: false
   },
 
@@ -95,9 +94,9 @@ const state = reactive({
     '--wf-font-family': "'DM Sans', system-ui, sans-serif",
     '--wf-font-size': '14px',
     '--wf-width': '600px',
-    '--wf-field-radius': '5px',
-    '--wf-btn-radius': '5px',
-    '--wf-reset-radius': '5px',
+    '--wf-field-radius': 'var(--shape-round)',
+    '--wf-btn-radius': 'var(--shape-round)',
+    '--wf-reset-radius': 'var(--shape-round)',
     '--wf-field-border-width': '1px'
   },
 
@@ -105,9 +104,6 @@ const state = reactive({
   fieldShape: 'round', // sharp | round | soft | pill | line
 
   ui: {
-    /* The properties panel is closed until the settings button is pressed or a
-       field is selected; the panel's own close button puts it back. */
-    panelOpen: false,
     activeTab: 'basic',
     /* Per-field configuration is a side sheet of its own (Figma 208:1319), not a
        tab — the panel describes the form, the sheet describes one field. */
@@ -214,6 +210,13 @@ const relatedCount = computed(() => relatedSections.value.length)
 const fieldSheetVisible = computed(() => state.ui.fieldSheetOpen && selectedField.value !== null)
 
 /**
+ * The right-hand slot is binary: Form Properties is its resting state, and the
+ * field sheet borrows it while a field is selected. Form Properties has no close
+ * button, so there is no third, empty state to represent.
+ */
+const formPanelVisible = computed(() => !fieldSheetVisible.value)
+
+/**
  * Figma 970:6236 — with Reset on, turning either "Fill Full Width" switch on
  * makes BOTH buttons full width and stacks them, Submit above Reset.
  */
@@ -235,8 +238,8 @@ const buttonsFullWidth = computed({
   }
 })
 
-const MIN_FORM_WIDTH = 360
-const MAX_FORM_WIDTH = 1000
+export const MIN_FORM_WIDTH = 360
+export const MAX_FORM_WIDTH = 1000
 
 function parseWidth(value) {
   const raw = String(value ?? '').trim()
@@ -289,24 +292,23 @@ function closeFieldSheet() {
  * where you noticed it rather than only from the panel.
  */
 function editHeader(part) {
-  clearSelection()
   openPanel('header')
   state.ui.focusControl = part
 }
 
-/** Settings button — opens the form-level (Basic) properties. */
+/** Settings button — swaps the field sheet out for the form-level properties. */
 function openFormSettings() {
-  state.ui.activeTab = 'basic'
-  state.ui.panelOpen = true
+  openPanel('basic')
 }
 
+/**
+ * Show a form-level tab. Dropping the field selection is part of the job: the
+ * sheet wins the slot while a field is selected, so without this the panel would
+ * be switched to a tab nobody can see.
+ */
 function openPanel(tab) {
+  clearSelection()
   if (tab) state.ui.activeTab = tab
-  state.ui.panelOpen = true
-}
-
-function closePanel() {
-  state.ui.panelOpen = false
 }
 
 function clearSelection() {
@@ -406,6 +408,7 @@ export function useBuilderStore() {
     relatedSections,
     relatedCount,
     fieldSheetVisible,
+    formPanelVisible,
     buttonsStacked,
     buttonsFullWidth,
     toggleRelatedSection,
@@ -415,7 +418,6 @@ export function useBuilderStore() {
     editHeader,
     closeFieldSheet,
     openPanel,
-    closePanel,
     addField,
     removeField,
     restoreField,

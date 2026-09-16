@@ -290,6 +290,20 @@ const heading = computed(
   scrollbar-gutter: stable;
   background: var(--palette-bg);
 }
+/* The gutter above keeps the layout still; this keeps it *looking* still. The
+   app's default thumb is a near-white slate, and the gutter sits flush against
+   the canvas — so when the list becomes scrollable the thumb merges with the
+   canvas and the navy rail appears to lose 5px.
+
+   Deliberately the ::-webkit- path only, matching base.css: setting the standard
+   `scrollbar-color` opts Chrome out of that path and into the platform
+   scrollbar, which changes how much width the gutter reserves. */
+.palette::-webkit-scrollbar-thumb {
+  background: var(--palette-scroll-thumb);
+}
+.palette::-webkit-scrollbar-track {
+  background: transparent;
+}
 /* ── Fields sub-tabs — Figma "Primary Tab" 1468:32426 ── */
 .sub-tabs {
   display: flex;

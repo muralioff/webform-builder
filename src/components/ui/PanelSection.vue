@@ -41,6 +41,12 @@ defineProps({
   padding-bottom: 20px;
   border-bottom: 1px solid var(--panel-section-border);
 }
+/* The rule separates one section from the next, so the last one has nothing to
+   separate from. Every tab wraps its sections in a single element, so this is
+   the bottom of the tab whichever tab it is. */
+.panel-section:last-child {
+  border-bottom: none;
+}
 .section-header {
   display: flex;
   align-items: center;

@@ -48,11 +48,16 @@ const id = useId()
   border-radius: 100px;
   background: var(--control-bg);
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.swatch-pill:hover,
-.swatch-pill:focus-within {
+.swatch-pill:hover {
   border-color: var(--control-selected-border);
+}
+/* Listed after hover so a focused swatch keeps the focus outline under the
+   pointer rather than reverting to the hover one. */
+.swatch-pill:focus-within {
+  border-color: var(--control-focus-border);
+  box-shadow: var(--control-focus-shadow);
 }
 .color-input {
   position: absolute;

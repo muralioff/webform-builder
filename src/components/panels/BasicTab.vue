@@ -6,7 +6,7 @@ import SegmentControl from '../ui/SegmentControl.vue'
 import ColorControl from '../ui/ColorControl.vue'
 import InputControl from '../ui/InputControl.vue'
 import PillTabs from '../ui/PillTabs.vue'
-import { useBuilderStore } from '@/composables/useBuilderStore'
+import { useBuilderStore, MIN_FORM_WIDTH, MAX_FORM_WIDTH } from '@/composables/useBuilderStore'
 
 const { state, formWidthError } = useBuilderStore()
 
@@ -75,7 +75,10 @@ const BG_MODES = [
           label="Form Width"
           placeholder="600px"
           :error="formWidthError"
-          help="Supported width: 360px – 1000px"
+          :step="10"
+          :min="MIN_FORM_WIDTH"
+          :max="MAX_FORM_WIDTH"
+          :help="`Supported width: ${MIN_FORM_WIDTH}px – ${MAX_FORM_WIDTH}px`"
         />
       </div>
       <div class="prop-row">

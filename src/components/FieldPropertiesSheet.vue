@@ -77,6 +77,7 @@ function onRemove(field) {
             v-model="selectedField.hintText"
             label="Hint Text"
             placeholder="e.g. Use your work email"
+            :maxlength="100"
           />
         </div>
       </section>

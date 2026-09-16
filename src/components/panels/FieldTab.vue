@@ -20,7 +20,7 @@ const { state } = useBuilderStore()
 const SHAPES = [
   { value: 'sharp', rx: '0px', label: 'Sharp' },
   { value: 'round', rx: '4px', label: 'Round' },
-  { value: 'pill', rx: '100px', label: 'Pill' },
+  { value: 'pill', rx: '100px', label: 'Full Rounded' },
   { value: 'line', rule: true, label: 'Line' }
 ]
 </script>

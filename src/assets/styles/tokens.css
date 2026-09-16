@@ -124,8 +124,11 @@
   --color-crm-border-2: #d6d6e3;
   --color-crm-border-3: #dcdbee;
   --color-crm-border-4: #edf0f4;
-  --color-crm-input-outline: #c0c6cc;
+  --color-crm-input-outline: #c0c8e2;
   --color-crm-input-focus: #5464f2;
+  /* Component/Input/Focus Shadow — #4c5efd80. The glow is indigo even though the
+     focus outline beside it is blue; that is how CRM defines the pair. */
+  --color-crm-input-focus-shadow: rgba(76, 94, 253, 0.5);
   --color-crm-select-bg: rgba(84, 100, 242, 0.05);
   --color-crm-swatch-ring: #cbcbcb;
   --color-crm-tag-bg: #f3f5ff;
@@ -152,9 +155,9 @@
   /* CRM ships --formBorderError and the alert icon as two tokens that happen to
      share a value; alias rather than repeat the literal. */
   --color-crm-form-error: var(--color-msg-error-icon);
-  /* Checkbox / disabled input (Figma 208:1319 — Field Properties sheet) */
-  --color-crm-input-disabled-bg: #f4f5f6;
-  --color-crm-input-disabled-outline: #dbe0e5;
+  /* Checkbox / disabled input (Figma 1490:35286 — Field Properties sheet) */
+  --color-crm-input-disabled-bg: #f5f6f8;
+  --color-crm-input-disabled-outline: #d2d9f1;
 
   /* Alpha overlays — no theme swap, they sit on top of whatever is beneath */
   --color-shadow-soft: rgba(0, 0, 0, 0.08);
@@ -200,12 +203,14 @@
   --warning: var(--color-amber-600);
 
   /* Left rail + field palette (dark in both themes — it is a fixed surface) */
-  /* Checkbox — Figma 208:1336. Checked is the CRM blue, not the app accent;
-     unchecked borrows the disabled-input pair. */
-  --checkbox-bg: var(--color-crm-input-disabled-bg);
-  --checkbox-border: var(--color-crm-input-disabled-outline);
-  --checkbox-checked: var(--color-crm-link);
+  /* Checkbox — Figma 1254:12659/12661/12662, three states. Default is white with
+     the same outline an input carries; the grey pair is Disable, not unchecked. */
+  --checkbox-bg: var(--color-white);
+  --checkbox-border: var(--color-crm-input-outline);
+  --checkbox-checked: var(--color-crm-input-focus);
   --checkbox-tick: var(--color-white);
+  --checkbox-disabled-bg: var(--color-crm-input-disabled-bg);
+  --checkbox-disabled-border: var(--color-crm-input-disabled-outline);
 
   /* Border-width slider — Figma "Border width" row in the Field tab. */
   --slider-track: var(--color-crm-border-4);
@@ -249,6 +254,10 @@
   --drag-ghost-border: var(--color-indigo-300);
   /* The row the dragged field vacated, left outlined in the palette. */
   --palette-slot-border: var(--color-navy-500);
+  /* The rail's scroll gutter sits flush against the canvas, so the app's default
+     near-white thumb merges with it and makes the navy look 5px narrower. Tone
+     the thumb to the rail so it reads as part of it. */
+  --palette-scroll-thumb: var(--color-navy-600);
 
   /* Nav-rail search — CRM "builder input". No fill and no focus ring: the
      variant is transparent by design and leans on the navy panel behind it.
@@ -293,7 +302,16 @@
   --panel-tab-underline: var(--color-crm-link);
   --control-bg: var(--color-white);
   --control-border: var(--color-crm-input-outline);
+  /* Two different jobs that happened to share a value: `selected` marks the
+     chosen chip, segment or tile (indigo, matching their tick badge), while
+     `focus` is the caret-is-here outline on an input (Figma 1490:35292 —
+     Component/Input/Focus-Outline, blue, with a glow behind it). */
   --control-selected-border: var(--color-crm-input-focus);
+  /* Now the same value as --control-selected-border, but kept separate: the two
+     have disagreed across revisions of this frame and mean different things. */
+  --control-focus-border: var(--color-crm-input-focus);
+  --control-focus-shadow: 0 0 6px var(--color-crm-input-focus-shadow);
+  --control-error-border: var(--color-crm-form-error);
   --control-selected-bg: var(--color-crm-select-bg);
   --swatch-pill-border: var(--color-crm-border-2);
   --swatch-ring: var(--color-crm-swatch-ring);
@@ -348,6 +366,14 @@
   --panel-w: 360px;
   --radius: 8px;
   --radius-sm: 5px;
+  /* Shape scale — one set of corner radii for every shaped control, inputs and
+     buttons alike, so "Round" means the same thing wherever it is offered.
+     Pill is deliberately larger than any control: the browser clamps it to half
+     the shorter side, which is the maximum a box can take. Line has no entry —
+     it draws an underline, not a box. */
+  --shape-sharp: 0px;
+  --shape-round: 6px;
+  --shape-pill: 999px;
   --radius-xs: 4px;
   /* CRM --lyte-input-border-radius, not the 5px the rest of the app uses. */
   --search-radius: 6px;
@@ -427,7 +453,7 @@
 
   --wf-field-bg: var(--color-slate-50);
   --wf-field-border: var(--color-slate-400);
-  --wf-field-radius: var(--radius-sm);
+  --wf-field-radius: var(--shape-round);
   --wf-field-text: var(--color-slate-900);
   --wf-field-placeholder: var(--color-slate-500);
   /* Figma Field tab — "Focus" under Field Style, "Border width" under Input
@@ -438,13 +464,13 @@
   --wf-btn-bg: var(--color-indigo-600);
   --wf-btn-border: var(--color-indigo-600);
   --wf-btn-text: var(--color-white);
-  --wf-btn-radius: var(--radius-sm);
+  --wf-btn-radius: var(--shape-round);
   --wf-btn-align: flex-end;
 
   --wf-reset-bg: var(--color-white);
   --wf-reset-border: var(--color-slate-400);
   --wf-reset-text: var(--color-slate-900);
-  --wf-reset-radius: var(--radius-sm);
+  --wf-reset-radius: var(--shape-round);
 
   --wf-banner-h: 140px;
   --wf-banner-from: var(--color-indigo-600);

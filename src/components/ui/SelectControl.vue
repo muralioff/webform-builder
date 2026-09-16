@@ -41,10 +41,11 @@ const id = useId()
   appearance: none;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .ctrl-select:focus {
-  border-color: var(--control-selected-border);
+  border-color: var(--control-focus-border);
+  box-shadow: var(--control-focus-shadow);
 }
 .caret {
   position: absolute;

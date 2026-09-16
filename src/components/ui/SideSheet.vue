@@ -16,7 +16,10 @@ import BaseIcon from './BaseIcon.vue'
 defineProps({
   title: { type: String, required: true },
   /* Read out for the close button; the panels close different things. */
-  closeLabel: { type: String, default: 'Close' }
+  closeLabel: { type: String, default: 'Close' },
+  /* Form Properties is the slot's resting state — there is nothing for it to
+     close back to, so it shows no close button at all. */
+  closable: { type: Boolean, default: true }
 })
 
 defineEmits(['close'])
@@ -31,13 +34,14 @@ defineEmits(['close'])
         <slot name="tag" />
       </div>
       <button
+        v-if="closable"
         type="button"
         class="sheet-close"
         :title="closeLabel"
         :aria-label="closeLabel"
         @click="$emit('close')"
       >
-        <BaseIcon name="close" :size="16" />
+        <BaseIcon name="close" :size="10" />
       </button>
     </header>
 
@@ -63,6 +67,9 @@ defineEmits(['close'])
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  /* Fixed, not derived from the contents: without a close button the 26px
+     control stops setting the height and the bar collapses to the text. */
+  height: 46px;
   padding: 10px 10px 10px 15px;
   background: var(--panel-head-bg);
   border-bottom: 1px solid var(--panel-head-border);
@@ -88,11 +95,13 @@ defineEmits(['close'])
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  width: 26px;
+  height: 26px;
   padding: 5px;
   border: none;
   border-radius: 20px;
   background: var(--panel-head-bg);
-  color: var(--panel-value);
+  color: var(--panel-label);
   transition: background 0.15s;
 }
 .sheet-close:hover {
