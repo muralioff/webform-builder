@@ -145,6 +145,8 @@
   --color-crm-btn-outline-text: #5464f2;
   --color-crm-btn-primary-top: #5767f6;
   --color-crm-btn-primary-bottom: #124dc3;
+  /* CRM's rich-text wordStyle.color — the colour picker's starting value. */
+  --color-crm-richtext-text: #333333;
   /* "crmBuilderInput" — the transparent search that sits on the navy builder
      panel (lyte-input.less 484-543). Its rest border and panel colour are
      already here as navy-600 (#3d5073) and navy-900 (#10203b). */
@@ -172,6 +174,7 @@
   --color-white-a20: rgba(255, 255, 255, 0.2);
   --color-white-a40: rgba(255, 255, 255, 0.4);
   --color-hairline: rgba(0, 0, 0, 0.12);
+  --color-scrim: rgba(0, 0, 0, 0.45);
 
   /* ── 2. SEMANTIC — light theme ─────────────────────────────────────── */
 
@@ -224,6 +227,29 @@
   --sheet-label: var(--color-crm-label);
   --sheet-value: var(--color-crm-base);
   --sheet-mandatory-bar: var(--color-crm-form-error);
+
+  /* Modal shell — the dim behind a Teleported dialog. */
+  --modal-overlay: var(--color-scrim);
+  --modal-bg: var(--surface);
+  --modal-border: var(--panel-section-border);
+
+  /* Rich text editor. Everything points at an existing app token so the editor
+     reads as part of the builder rather than as a bolted-on library. */
+  --rt-toolbar-bg: var(--panel-head-bg);
+  --rt-btn-text: var(--panel-value);
+  --rt-btn-hover-bg: var(--control-border);
+  --rt-btn-active-bg: var(--accent-subtle);
+  --rt-btn-active-text: var(--accent);
+  --rt-separator: var(--border);
+  --rt-text: var(--text);
+  --rt-placeholder: var(--panel-label);
+  --rt-link: var(--accent);
+  --rt-counter: var(--text-subtle);
+  --rt-counter-warn: var(--warning);
+  --rt-error: var(--danger);
+  /* Opening values for the two colour pickers. */
+  --rt-color-default: var(--color-crm-richtext-text);
+  --rt-highlight-default: var(--color-white);
 
   --rail-bg: var(--color-navy-900);
   --rail-tab-bg: var(--color-navy-800);
@@ -299,7 +325,12 @@
   --panel-value: var(--color-crm-base);
   --panel-tab-active: var(--color-crm-heading);
   --panel-tab-idle: var(--color-crm-base);
-  --panel-tab-underline: var(--color-crm-link);
+  /* Figma 970:5765 — the node that paints the underline binds Primary Palette/Link
+     to #5464f2, the same CRM indigo as the input focus outline. Asking the parent
+     frame for that variable answers #338cf0, and the generated code's fallback
+     literal agrees with it; the painting node is the one that is right. The rail
+     search keeps --color-crm-link, whose own spec states #338CF0 outright. */
+  --panel-tab-underline: var(--color-crm-input-focus);
   --control-bg: var(--color-white);
   --control-border: var(--color-crm-input-outline);
   /* Two different jobs that happened to share a value: `selected` marks the

@@ -32,6 +32,8 @@ export function usePaletteSortable(elRef) {
       ...BASE,
       group: { name: DND_GROUP, pull: 'clone', put: false },
       sort: false,
+      /* Palette rows without a field type are display-only placeholders. */
+      filter: '.palette-item--static',
 
       /* Sortable stands this copy in for the row being dragged. Tagging it
          lets the palette show an empty outlined slot (Figma 1156:11437)

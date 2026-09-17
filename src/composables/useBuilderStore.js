@@ -111,6 +111,9 @@ const state = reactive({
     /* Which control the panel should put the caret in once it opens — set when
        something on the canvas is clicked, cleared by whoever answers it. */
     focusControl: null,
+    /* Bumped to ask the canvas to open the rich text editor for the selected
+       block — the sheet and the modal live in different components. */
+    richTextRequest: 0,
     activeRail: 'fields',
     fieldsSubTab: 'primary',
     collapsedRelated: [],
@@ -333,13 +336,21 @@ function addField(type, index = null, overrides = {}) {
  * when the field is pinned by the module, which reads the same as the old
  * `false` at a call site that only tests for success.
  */
+/**
+ * The most recent removal, kept so Cmd/Ctrl+Z can put a field back after the
+ * toast has gone. One level deep, matching the toast's single Undo — this is an
+ * escape hatch for a mis-click, not a general history stack.
+ */
+const lastRemoval = ref(null)
+
 function removeField(id) {
   const index = state.fields.findIndex((f) => f.id === id)
   if (index === -1) return null
   if (state.fields[index].removable === false) return null
   const [field] = state.fields.splice(index, 1)
   if (state.ui.selectedFieldId === id) clearSelection()
-  return { field, index }
+  lastRemoval.value = { field, index }
+  return lastRemoval.value
 }
 
 /** The Undo half of removeField(): same field, same position. */
@@ -348,6 +359,16 @@ function restoreField(removal) {
   const { field, index } = removal
   state.fields.splice(Math.min(Math.max(index, 0), state.fields.length), 0, field)
   selectField(field.id)
+  /* Whether it came from the toast or the keyboard, the removal is spent. */
+  if (lastRemoval.value === removal) lastRemoval.value = null
+}
+
+/** Cmd/Ctrl+Z. Returns the field it put back, or null if there was nothing. */
+function undoLastRemoval() {
+  const removal = lastRemoval.value
+  if (!removal) return null
+  restoreField(removal)
+  return removal.field
 }
 
 function duplicateField(id) {
@@ -421,6 +442,7 @@ export function useBuilderStore() {
     addField,
     removeField,
     restoreField,
+    undoLastRemoval,
     duplicateField,
     setToken,
     setAppTheme,

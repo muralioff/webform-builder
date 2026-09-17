@@ -1,8 +1,13 @@
 <script setup>
+import { computed } from 'vue'
 import BaseIcon from './ui/BaseIcon.vue'
 import SideSheet from './ui/SideSheet.vue'
 import InputControl from './ui/InputControl.vue'
 import CheckboxControl from './ui/CheckboxControl.vue'
+import ShapeOptions from './ui/ShapeOptions.vue'
+import SliderControl from './ui/SliderControl.vue'
+import ColorControl from './ui/ColorControl.vue'
+import BaseButton from './ui/BaseButton.vue'
 import { useBuilderStore } from '@/composables/useBuilderStore'
 import { useToast } from '@/composables/useToast'
 
@@ -14,9 +19,32 @@ import { useToast } from '@/composables/useToast'
  * selected. Section headings are plain text — no icon chip, no PanelSection
  * chrome — and the switches are checkboxes, both straight from the frame.
  */
-const { selectedField, closeFieldSheet, removeField, restoreField, duplicateField } =
+const { state, selectedField, closeFieldSheet, removeField, restoreField, duplicateField } =
   useBuilderStore()
 const { toast } = useToast()
+
+
+
+/* A divider is structure, not a question: it has no label to name, nothing to
+   validate and no value to default. Its two properties replace the whole body. */
+const DIVIDER_STYLES = [
+  { value: 'solid', rule: true, lineStyle: 'solid', label: 'Solid' },
+  { value: 'dashed', rule: true, lineStyle: 'dashed', label: 'Dashed' },
+  { value: 'dotted', rule: true, lineStyle: 'dotted', label: 'Dotted' },
+  { value: 'none', rule: true, lineStyle: 'none', label: 'None' }
+]
+
+/**
+ * The picker needs a concrete #rrggbb, but an untouched divider has no colour of
+ * its own — it follows the form's field border. Read that through until someone
+ * picks something, at which point the divider keeps its own value.
+ */
+const dividerColor = computed({
+  get: () => selectedField.value?.dividerColor || state.theme['--wf-field-border'],
+  set: (value) => {
+    if (selectedField.value) selectedField.value.dividerColor = value
+  }
+})
 
 function onRemove(field) {
   const removal = removeField(field.id)
@@ -35,7 +63,70 @@ function onRemove(field) {
     close-label="Close field properties"
     @close="closeFieldSheet"
   >
-    <div class="field-sheet-body">
+    <!-- Rich text keeps its content in the editor modal, so its sheet is just
+         the way back into it plus the usual field actions. -->
+    <div v-if="selectedField.control === 'richtext'" class="field-sheet-body">
+      <div class="sheet-block">
+        <p class="rt-hint">Text content is edited in the rich text editor.</p>
+        <BaseButton variant="outline" @click="state.ui.richTextRequest++">
+          Edit Content
+        </BaseButton>
+      </div>
+
+      <div class="sheet-block field-actions">
+        <button type="button" class="act" @click="duplicateField(selectedField.id)">
+          <BaseIcon name="plus" :size="12" /> Duplicate
+        </button>
+        <button
+          type="button"
+          class="act act--danger"
+          :disabled="!selectedField.removable"
+          title="Remove text block"
+          @click="onRemove(selectedField)"
+        >
+          <BaseIcon name="trash" :size="12" /> Remove
+        </button>
+      </div>
+    </div>
+
+    <div v-else-if="selectedField.control === 'divider'" class="field-sheet-body">
+      <div class="sheet-block">
+        <ShapeOptions
+          v-model="selectedField.dividerStyle"
+          label="Style"
+          :options="DIVIDER_STYLES"
+          tile
+        />
+      </div>
+      <div class="sheet-block">
+        <SliderControl
+          v-model="selectedField.dividerThickness"
+          label="Thickness"
+          :min="1"
+          :max="10"
+        />
+      </div>
+      <div class="sheet-block">
+        <ColorControl v-model="dividerColor" label="Color" />
+      </div>
+
+      <div class="sheet-block field-actions">
+        <button type="button" class="act" @click="duplicateField(selectedField.id)">
+          <BaseIcon name="plus" :size="12" /> Duplicate
+        </button>
+        <button
+          type="button"
+          class="act act--danger"
+          :disabled="!selectedField.removable"
+          title="Remove divider"
+          @click="onRemove(selectedField)"
+        >
+          <BaseIcon name="trash" :size="12" /> Remove
+        </button>
+      </div>
+    </div>
+
+    <div v-else class="field-sheet-body">
       <!-- 208:1329 — a field with no label has nothing to render, so Label is
            the one mandatory value here. -->
       <div class="sheet-block">
@@ -150,6 +241,11 @@ function onRemove(field) {
   color: var(--sheet-label);
 }
 .default-value__info {
+  color: var(--sheet-label);
+}
+
+.rt-hint {
+  font-size: 12px;
   color: var(--sheet-label);
 }
 

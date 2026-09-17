@@ -35,7 +35,7 @@ const model = defineModel({ type: String })
         v-if="tile"
         class="shape-preview"
         :class="{ 'shape-preview--rule': opt.rule }"
-        :style="opt.rule ? null : { borderRadius: opt.rx }"
+        :style="opt.rule ? { borderBottomStyle: opt.lineStyle || 'solid' } : { borderRadius: opt.rx }"
       />
       <BaseIcon
         v-else
@@ -104,7 +104,7 @@ const model = defineModel({ type: String })
 .shape-opt--tile.active .shape-preview {
   border-color: var(--control-selected-border);
 }
-/* The `line` shape has no box to round — its tile previews the underline. */
+/* A `rule` option has no box to round — its tile previews the line itself. */
 .shape-preview--rule {
   height: 0;
   border-width: 0 0 2px;

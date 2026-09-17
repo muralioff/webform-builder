@@ -11,7 +11,8 @@ import {
   FORM_ELEMENTS,
   FIELD_TYPES,
   LAYOUT_OPTIONS,
-  RAIL_TABS
+  RAIL_TABS,
+  REPEATABLE_TYPES
 } from '@/data/fieldTypes'
 
 const { state, relatedSections, relatedCount, toggleRelatedSection } = useBuilderStore()
@@ -19,7 +20,12 @@ const { state, relatedSections, relatedCount, toggleRelatedSection } = useBuilde
 /* Each palette field can be placed once. Keyed on `source` (the label the field
    was created from) rather than `label`, so renaming a field on the canvas does
    not hand its palette row back. Derived, so removing the field restores it. */
-const usedSources = computed(() => new Set(state.fields.map((f) => f.source)))
+const usedSources = computed(
+  () =>
+    new Set(
+      state.fields.filter((f) => !REPEATABLE_TYPES.includes(f.type)).map((f) => f.source)
+    )
+)
 
 /* Always a fresh array: SortableJS splices what it is given, and PALETTE_FIELDS
    is a shared module constant that must never be mutated. */
@@ -36,6 +42,11 @@ const allFieldsUsed = computed(
 
 const paletteEl = ref(null)
 usePaletteSortable(paletteEl)
+
+/* Form Elements drag onto the form the same way fields do; the list is separate
+   because it lives in its own rail pane. */
+const elementsEl = ref(null)
+usePaletteSortable(elementsEl)
 
 /* Non-draggable rows reuse the palette icon map. */
 const iconFor = (type) => FIELD_TYPES[type]?.icon ?? 'field-single-line'
@@ -208,13 +219,18 @@ const heading = computed(
         </div>
       </div>
 
-      <!-- ── Form Elements — Figma 1053:7492. Display only, as above. ──── -->
+      <!-- ── Form Elements — Figma 1053:7492. Entries with a `type` drag onto
+           the form; the others are display-only until they have behaviour. -->
       <div v-show="state.ui.activeRail === 'form-elements'" class="palette-pane">
-        <div class="palette-list">
+        <div ref="elementsEl" class="palette-list">
           <div
             v-for="item in FORM_ELEMENTS"
             :key="item.label"
-            class="palette-item palette-item--static"
+            class="palette-item"
+            :class="{ 'palette-item--static': !item.type }"
+            :data-field-type="item.type"
+            :data-field-label="item.label"
+            :title="item.type ? `Drag ${item.label} onto the form` : undefined"
           >
             <BaseIcon :name="item.icon" :size="16" class="palette-item-icon" />
             <span class="palette-item-label">{{ item.label }}</span>

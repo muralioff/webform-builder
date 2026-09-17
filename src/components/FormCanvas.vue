@@ -1,15 +1,16 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import BaseIcon from './ui/BaseIcon.vue'
 import { useCanvasSortable } from '@/composables/useSortable'
 import { useBuilderStore } from '@/composables/useBuilderStore'
 import { createField } from '@/data/fieldTypes'
 import { useToast } from '@/composables/useToast'
+import RichTextModal from './RichTextModal.vue'
 
 const {
   state,
+  selectedField: selectedFieldRef,
   selectField,
-  clearSelection,
   editHeader,
   removeField,
   restoreField,
@@ -61,6 +62,30 @@ const shapeRadius = computed(() => RADII[state.fieldShape] ?? RADII.round)
    whitespace handling would otherwise put a space inside the element. */
 const hasDescription = computed(() => Boolean(state.header.description?.trim()))
 
+/* The editor is a modal rather than a panel section: it needs the room, and the
+   spec it came from is a modal. One instance, pointed at whichever block asked. */
+const richTextOpen = ref(false)
+const richTextField = ref(null)
+
+function openRichText(field) {
+  richTextField.value = field
+  richTextOpen.value = true
+  selectField(field.id)
+}
+
+function saveRichText({ html }) {
+  if (richTextField.value) richTextField.value.richText = html
+}
+
+/* The Field Properties sheet asks for the editor from another component; the
+   counter is the message, the selected field is the subject. */
+watch(
+  () => state.ui.richTextRequest,
+  () => {
+    if (selectedFieldRef.value?.control === 'richtext') openRichText(selectedFieldRef.value)
+  }
+)
+
 const listEl = ref(null)
 
 useCanvasSortable(listEl, {
@@ -90,11 +115,9 @@ function onRemove(field) {
 </script>
 
 <template>
-  <div
-    class="canvas-area"
-    :data-wallpaper="state.background.wallpaper"
-    @click.self="clearSelection"
-  >
+  <!-- No deselect-on-background-click: the field sheet is dismissed by its own
+       close button, so a stray click on the canvas cannot lose your place. -->
+  <div class="canvas-area" :data-wallpaper="state.background.wallpaper">
     <button
       v-if="!formPanelVisible"
       type="button"
@@ -165,6 +188,29 @@ function onRemove(field) {
                 <BaseIcon name="trash" :size="12" />
               </button>
 
+              <!-- Structure, not a question: a block of formatted copy. Clicking
+                   opens the editor, which is the only way to change it. -->
+              <div
+                v-if="field.control === 'richtext'"
+                class="preview-richtext"
+                :class="{ 'is-empty': !field.richText }"
+                @click.stop="openRichText(field)"
+                v-html="field.richText || 'Click to add text'"
+              />
+
+              <!-- A divider collects nothing, so it carries no label or control —
+                   just the rule itself, styled from its own two properties. -->
+              <hr
+                v-else-if="field.control === 'divider'"
+                class="preview-divider"
+                :style="{
+                  borderTopStyle: field.dividerStyle,
+                  borderTopWidth: field.dividerStyle === 'none' ? '0' : field.dividerThickness,
+                  borderTopColor: field.dividerColor || undefined
+                }"
+              />
+
+              <template v-else>
               <label class="preview-label">
                 {{ field.label }}
                 <span v-if="field.required" class="req">*</span>
@@ -188,6 +234,8 @@ function onRemove(field) {
                 <option>{{ field.placeholder || '— Select —' }}</option>
               </select>
               <input v-else class="preview-input" :placeholder="field.placeholder" readonly />
+
+              </template>
 
               <p v-if="field.showHint && field.hintText" class="preview-hint">
                 {{ field.hintText }}
@@ -229,6 +277,12 @@ function onRemove(field) {
         </div>
       </div>
     </div>
+
+    <RichTextModal
+      v-model="richTextOpen"
+      :initial-value="richTextField?.richText ?? ''"
+      @save="saveRichText"
+    />
   </div>
 </template>
 
@@ -518,6 +572,66 @@ function onRemove(field) {
   border-bottom: var(--wf-field-border-width) solid var(--wf-field-border);
   border-radius: 0;
   background: transparent;
+}
+
+/* The rule itself. `none` keeps the row as an invisible spacer, which is what
+   the blank Style tile selects. */
+.preview-divider {
+  width: 100%;
+  margin: 8px 0;
+  border: 0;
+  border-top: 1px solid var(--wf-field-border);
+}
+
+/* The block reads as the copy it holds; empty, it invites a click. */
+.preview-richtext {
+  min-height: 24px;
+  font-size: 0.93em;
+  line-height: 1.6;
+  color: var(--wf-field-text);
+}
+.preview-richtext.is-empty {
+  color: var(--wf-field-placeholder);
+  font-style: italic;
+}
+.preview-richtext :deep(p) {
+  margin: 0 0 6px;
+}
+.preview-richtext :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.preview-richtext :deep(ul),
+.preview-richtext :deep(ol) {
+  margin: 0 0 6px;
+  padding-inline-start: 22px;
+}
+.preview-richtext :deep(a) {
+  color: var(--wf-btn-bg);
+  text-decoration: underline;
+}
+/* The editor can save tables and quotes, so the preview has to render them —
+   in the form's own colours, not the editor's. */
+.preview-richtext :deep(table) {
+  width: 100%;
+  margin: 6px 0;
+  border-collapse: collapse;
+}
+.preview-richtext :deep(th),
+.preview-richtext :deep(td) {
+  padding: 6px 10px;
+  border: 1px solid var(--wf-field-border);
+  text-align: start;
+  vertical-align: top;
+}
+.preview-richtext :deep(th) {
+  background: var(--wf-field-bg);
+  font-weight: 600;
+}
+.preview-richtext :deep(blockquote) {
+  margin: 0 0 6px;
+  padding-inline-start: 12px;
+  border-inline-start: 3px solid var(--wf-field-border);
+  color: var(--wf-field-placeholder);
 }
 
 .preview-hint {
