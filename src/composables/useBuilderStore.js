@@ -114,6 +114,9 @@ const state = reactive({
     /* Bumped to ask the canvas to open the rich text editor for the selected
        block — the sheet and the modal live in different components. */
     richTextRequest: 0,
+    /* Bumped by the top bar's Next button — the canvas owns the live form
+       element the export has to read its resolved values from. */
+    sourceCodeRequest: 0,
     activeRail: 'fields',
     fieldsSubTab: 'primary',
     collapsedRelated: [],

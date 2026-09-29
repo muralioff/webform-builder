@@ -175,6 +175,9 @@
   --color-white-a40: rgba(255, 255, 255, 0.4);
   --color-hairline: rgba(0, 0, 0, 0.12);
   --color-scrim: rgba(0, 0, 0, 0.45);
+  /* Source Code note callout. */
+  --color-note-bg: #fffbe6;
+  --color-note-border: #f2e4a8;
 
   /* ── 2. SEMANTIC — light theme ─────────────────────────────────────── */
 
@@ -247,6 +250,14 @@
   --rt-counter: var(--text-subtle);
   --rt-counter-warn: var(--warning);
   --rt-error: var(--danger);
+
+  /* Source Code dialog — the generated snippet and its note. */
+  --code-bg: var(--panel-head-bg);
+  --code-border: var(--control-border);
+  --code-text: var(--panel-value);
+  --note-bg: var(--color-note-bg);
+  --note-border: var(--color-note-border);
+  --note-text: var(--panel-value);
   /* Opening values for the two colour pickers. */
   --rt-color-default: var(--color-crm-richtext-text);
   --rt-highlight-default: var(--color-white);

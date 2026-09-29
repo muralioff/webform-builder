@@ -6,6 +6,8 @@ import { useBuilderStore } from '@/composables/useBuilderStore'
 import { createField } from '@/data/fieldTypes'
 import { useToast } from '@/composables/useToast'
 import RichTextModal from './RichTextModal.vue'
+import SourceCodeModal from './SourceCodeModal.vue'
+import { buildFormHtml } from '@/composables/useFormExport'
 
 const {
   state,
@@ -86,6 +88,21 @@ watch(
   }
 )
 
+/* The export reads its values off this element, so what ships is exactly what
+   the canvas is painting. */
+const formCardEl = ref(null)
+const sourceOpen = ref(false)
+const sourceCode = ref('')
+
+watch(
+  () => state.ui.sourceCodeRequest,
+  () => {
+    if (!formCardEl.value) return
+    sourceCode.value = buildFormHtml(state, formCardEl.value, formWidthCss.value)
+    sourceOpen.value = true
+  }
+)
+
 const listEl = ref(null)
 
 useCanvasSortable(listEl, {
@@ -131,6 +148,7 @@ function onRemove(field) {
 
     <div class="form-preview-wrap" :style="wrapStyle">
       <div
+        ref="formCardEl"
         class="wf-form form-card"
         :style="[formStyle, { '--wf-field-radius': shapeRadius }]"
         :data-shape="state.fieldShape"
@@ -283,6 +301,8 @@ function onRemove(field) {
       :initial-value="richTextField?.richText ?? ''"
       @save="saveRichText"
     />
+
+    <SourceCodeModal v-model="sourceOpen" :code="sourceCode" :module-name="state.meta.module" />
   </div>
 </template>
 
