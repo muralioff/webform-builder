@@ -57,19 +57,24 @@ const fieldName = (field) =>
 
 const INPUT_TYPES = { email: 'email', url: 'url', date: 'date', phone: 'tel' }
 
-/* Two of the font choices are Google web fonts the builder loads in its own
-   index.html. The export cannot rely on the host page having them, so it pulls
-   what it needs itself — otherwise the form silently falls back and the metrics
-   shift. Georgia, Courier New and System UI need nothing. */
+/* Two of the font choices are web fonts the host page will not have, so the
+   export pulls them itself — otherwise the form silently falls back and the
+   metrics shift. Georgia, Courier New and System UI need nothing.
+
+   Served from Zoho's own CDN rather than Google's: it is the font host the rest
+   of Zoho's embedded markup uses, and it keeps a form pasted onto a customer's
+   site from reaching a third party. Its weight list names individual faces, not
+   a range, and only the faces that exist — asking for one that does not
+   (DM Sans has no 600) returns an empty stylesheet rather than an error. */
 const WEB_FONTS = {
-  'DM Sans': 'DM+Sans:wght@300;400;500;600;700',
-  Inter: 'Inter:wght@300;400;500;600;700'
+  'DM Sans': 'DM+Sans:400,400i,500,500i,700,700i',
+  Inter: 'Inter:400,400i,500,500i,600,600i,700,700i'
 }
 
-function fontImport(fontFamily) {
+function fontLink(fontFamily) {
   const first = String(fontFamily || '').split(',')[0].replace(/['"]/g, '').trim()
   const spec = WEB_FONTS[first]
-  return spec ? `@import url('https://fonts.googleapis.com/css2?family=${spec}&display=swap');\n` : ''
+  return spec ? `<link rel="stylesheet" href="https://webfonts.zoho.eu/css?family=${spec}">` : null
 }
 
 /* The canvas wraps every row in the box that carries its hover outline. The
@@ -137,12 +142,12 @@ function renderField(field) {
   )
 }
 
-function stylesheet(vars, fontFamily) {
+function stylesheet(vars) {
   /* Mirrors the canvas rules, minus the builder chrome. The `line` shape is the
      one structural variant, so it rides on a data attribute exactly as it does
      in the builder. */
   return `<style>
-${fontImport(fontFamily)}.wf-form-root {
+.wf-form-root {
 ${vars}
   display: flex;
   justify-content: center;
@@ -418,7 +423,8 @@ export function buildFormHtml(state, formEl, widthCss) {
     `     Paste this straight into a page; it carries its own styles and needs`,
     `     nothing else. Point the form's action at your own endpoint to collect`,
     `     submissions. -->`,
-    stylesheet(declarations, read('--wf-font-family')),
+    fontLink(read('--wf-font-family')),
+    stylesheet(declarations),
     `<div class="wf-form-root">`,
     `  <form class="wf-form" data-shape="${state.fieldShape}" method="post" action="">`,
     banner,
