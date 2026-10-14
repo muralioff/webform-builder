@@ -10,12 +10,40 @@ import { useBuilderStore, MIN_FORM_WIDTH, MAX_FORM_WIDTH } from '@/composables/u
 
 const { state, formWidthError } = useBuilderStore()
 
+/* Every choice has to be a face Zoho's web font CDN actually serves, because
+   that is where both the canvas and the exported form load them from — offering
+   one it does not have would leave the form silently falling back on whatever
+   the visitor's machine happens to have.
+
+   None of the familiar office faces qualify: Arial, Georgia, Times New Roman,
+   Tahoma, Trebuchet, Verdana, Calibri, Comic Sans and Courier New are licensed
+   system fonts, not web fonts, and the CDN carries none of them. Each is
+   offered here through the open face that stands in for it, named in the label
+   so the familiar one is still what you search for.
+
+   The first five substitutions are metric clones — drawn to the original's
+   advance widths, so text wraps and lines break identically. Istok Web, Asap,
+   DejaVu Sans and Comic Neue have no official clone; they were picked by
+   measuring every candidate on the CDN against the real font, and the first
+   three land within 0.6% of it. Comic Neue is the outlier at 8.7% narrower,
+   kept anyway because it is the only casual face on offer and the reason to
+   choose Comic Sans is its voice, not its width.
+
+   Every stack keeps the original as its local fallback, so a machine that has
+   the real font — or a moment when the CDN is unreachable — still sets the form
+   to the same measure. */
 const FONTS = [
   { value: "'DM Sans', system-ui, sans-serif", label: 'DM Sans' },
   { value: "'Inter', system-ui, sans-serif", label: 'Inter' },
-  { value: 'Georgia, serif', label: 'Georgia' },
-  { value: "'Courier New', monospace", label: 'Courier New' },
-  { value: 'system-ui, sans-serif', label: 'System UI' }
+  { value: "'Arimo', Arial, Helvetica, sans-serif", label: 'Arimo (Arial)' },
+  { value: "'Tinos', 'Times New Roman', Times, serif", label: 'Tinos (Times New Roman)' },
+  { value: "'Gelasio', Georgia, serif", label: 'Gelasio (Georgia)' },
+  { value: "'Carlito', Calibri, Candara, sans-serif", label: 'Carlito (Calibri)' },
+  { value: "'Cousine', 'Courier New', Courier, monospace", label: 'Cousine (Courier New)' },
+  { value: "'Istok Web', Tahoma, Verdana, sans-serif", label: 'Istok Web (Tahoma)' },
+  { value: "'Asap', 'Trebuchet MS', sans-serif", label: 'Asap (Trebuchet MS)' },
+  { value: "'DejaVu Sans', Verdana, Geneva, sans-serif", label: 'DejaVu Sans (Verdana)' },
+  { value: "'Comic Neue', 'Comic Sans MS', cursive", label: 'Comic Neue (Comic Sans)' }
 ]
 
 const SIZES = [

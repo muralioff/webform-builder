@@ -57,18 +57,33 @@ const fieldName = (field) =>
 
 const INPUT_TYPES = { email: 'email', url: 'url', date: 'date', phone: 'tel' }
 
-/* Two of the font choices are web fonts the host page will not have, so the
-   export pulls them itself — otherwise the form silently falls back and the
-   metrics shift. Georgia, Courier New and System UI need nothing.
+/* The host page will not have any of these, so the export pulls the one it
+   needs itself — otherwise the form silently falls back and the metrics shift.
 
    Served from Zoho's own CDN rather than Google's: it is the font host the rest
    of Zoho's embedded markup uses, and it keeps a form pasted onto a customer's
    site from reaching a third party. Its weight list names individual faces, not
    a range, and only the faces that exist — asking for one that does not
-   (DM Sans has no 600) returns an empty stylesheet rather than an error. */
+   (DM Sans has no 600; the four-face families below have neither 500 nor 600)
+   returns an empty stylesheet rather
+   than an error. Each spec is the CDN's real inventory for that family.
+
+   Anything not listed resolves to no link at all. Nothing in the builder can
+   pick such a font any more, but a form saved before this list changed can still
+   name one, and it should fall back quietly rather than request a face that
+   would come back empty. */
 const WEB_FONTS = {
   'DM Sans': 'DM+Sans:400,400i,500,500i,700,700i',
-  Inter: 'Inter:400,400i,500,500i,600,600i,700,700i'
+  Inter: 'Inter:400,400i,500,500i,600,600i,700,700i',
+  Arimo: 'Arimo:400,400i,500,500i,600,600i,700,700i',
+  Tinos: 'Tinos:400,400i,700,700i',
+  Gelasio: 'Gelasio:400,400i,500,500i,600,600i,700,700i',
+  Carlito: 'Carlito:400,400i,700,700i',
+  Cousine: 'Cousine:400,400i,700,700i',
+  'Istok Web': 'Istok+Web:400,400i,700,700i',
+  Asap: 'Asap:400,400i,500,500i,600,600i,700,700i',
+  'DejaVu Sans': 'DejaVu+Sans:400,400i,700,700i',
+  'Comic Neue': 'Comic+Neue:400,400i,700,700i'
 }
 
 function fontLink(fontFamily) {

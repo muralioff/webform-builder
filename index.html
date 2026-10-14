@@ -4,11 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Webform Builder</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Zoho's web font CDN, not Google's. The canvas has to render every face
+         the font menu offers, and it has to render them from the same source the
+         exported form loads from — otherwise a form previews in one cut of a
+         family and ships in another. DM Sans and DM Mono dress the builder
+         itself; the rest exist only for the form being designed. -->
+    <link rel="preconnect" href="https://webfonts.zoho.eu" />
+    <link rel="preconnect" href="https://static.zohocdn.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
       rel="stylesheet"
+      href="https://webfonts.zoho.eu/css?family=DM+Sans:400,400i,500,500i,700,700i/DM+Mono:400,500/Inter:400,400i,500,500i,600,600i,700,700i/Arimo:400,400i,500,500i,600,600i,700,700i/Tinos:400,400i,700,700i/Gelasio:400,400i,500,500i,600,600i,700,700i/Istok+Web:400,400i,700,700i/Asap:400,400i,500,500i,600,600i,700,700i/DejaVu+Sans:400,400i,700,700i/Carlito:400,400i,700,700i/Comic+Neue:400,400i,700,700i/Cousine:400,400i,700,700i"
     />
   </head>
   <body>
